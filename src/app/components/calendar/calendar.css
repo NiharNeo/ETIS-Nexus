@@ -1,0 +1,259 @@
+/* React Big Calendar custom styling for premium ETIS Institutional UI */
+
+.rbc-wrapper {
+  font-family: var(--font-inter);
+  background: transparent;
+}
+
+.rbc-wrapper .rbc-calendar {
+  border: none;
+}
+
+/* Toolbar Dimensionality */
+.rbc-wrapper .rbc-toolbar {
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  background: var(--color-sidebar);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 2rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.rbc-wrapper .rbc-toolbar-label {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--color-foreground);
+  text-transform: capitalize;
+  letter-spacing: -0.02em;
+}
+
+/* Elite Action Buttons */
+.rbc-wrapper .rbc-btn-group {
+  display: flex;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 4px;
+  border-radius: 1.2rem;
+}
+
+.rbc-wrapper .rbc-btn-group button {
+  background-color: transparent;
+  border: 1px solid transparent;
+  color: var(--color-muted-foreground);
+  font-weight: 800;
+  font-size: 10px;
+  padding: 10px 18px;
+  border-radius: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.rbc-wrapper .rbc-btn-group button:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--color-foreground);
+}
+
+.rbc-wrapper .rbc-btn-group button.rbc-active {
+  background-color: var(--color-primary);
+  color: white;
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+}
+
+/* Month Dimension Grid */
+.rbc-wrapper .rbc-month-view {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 2.5rem;
+  overflow: hidden;
+  background-color: var(--color-card);
+  backdrop-blur: 20px;
+  box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.4);
+}
+
+.rbc-wrapper .rbc-header {
+  padding: 18px 10px;
+  font-size: 10px;
+  font-weight: 900;
+  color: var(--color-muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.rbc-wrapper .rbc-day-bg {
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.rbc-wrapper .rbc-month-row {
+  border-top: none;
+}
+
+/* Temporal Cells */
+.rbc-wrapper .rbc-date-cell {
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--color-foreground);
+  opacity: 0.4;
+}
+
+.rbc-wrapper .rbc-date-cell a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 12px;
+  transition: all 0.3s;
+}
+
+.rbc-wrapper .rbc-date-cell a:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  opacity: 1;
+}
+
+.rbc-wrapper .rbc-off-range-bg {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.rbc-wrapper .rbc-off-range .rbc-date-cell {
+  color: var(--color-muted-foreground);
+  opacity: 0.1;
+}
+
+/* Today's Nexus Point */
+.rbc-wrapper .rbc-today {
+  background-color: rgba(37, 99, 235, 0.03);
+}
+
+.rbc-wrapper .rbc-today .rbc-date-cell {
+  opacity: 1;
+}
+
+.rbc-wrapper .rbc-today .rbc-date-cell a {
+  background-color: var(--color-primary);
+  color: white;
+  font-weight: 900;
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.4);
+}
+
+/* Event Protocol Previews */
+.rbc-wrapper .rbc-event {
+  margin: 2px 6px;
+  border-radius: 8px !important;
+  font-family: var(--font-manrope);
+  letter-spacing: -0.01em;
+  opacity: 0.9;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.rbc-wrapper .rbc-event:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  opacity: 1;
+  z-index: 50;
+}
+
+.rbc-wrapper .rbc-event-content {
+  font-weight: 800;
+  padding: 2px 4px;
+}
+
+.rbc-wrapper .rbc-show-more {
+  color: var(--color-primary);
+  font-weight: 900;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-left: 8px;
+  margin-top: 4px;
+}
+
+/* Time Vector View */
+.rbc-wrapper .rbc-time-view {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 2.5rem;
+  overflow: hidden;
+  background-color: var(--color-card);
+}
+
+.rbc-wrapper .rbc-time-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.rbc-wrapper .rbc-time-header.rbc-overflowing {
+  border-right: none;
+}
+
+.rbc-wrapper .rbc-time-content {
+  border-top: none;
+}
+
+.rbc-wrapper .rbc-timeslot-group {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  min-height: 60px;
+}
+
+.rbc-wrapper .rbc-time-gutter .rbc-timeslot-group {
+  background-color: rgba(255, 255, 255, 0.01);
+}
+
+.rbc-wrapper .rbc-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--color-muted-foreground);
+  opacity: 0.4;
+  padding: 0 12px;
+  text-transform: uppercase;
+}
+
+/* Agenda Protocol View */
+.rbc-wrapper .rbc-agenda-view {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 2.5rem;
+  overflow: hidden;
+  background-color: var(--color-card);
+}
+
+.rbc-wrapper .rbc-agenda-view table.rbc-agenda-table {
+  border: none;
+}
+
+.rbc-wrapper .rbc-agenda-view table.rbc-agenda-table tbody > tr > td {
+  padding: 20px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
+  font-size: 15px;
+  color: var(--color-foreground);
+}
+
+.rbc-wrapper .rbc-agenda-date-cell {
+  font-weight: 900;
+  color: var(--color-foreground);
+  background-color: rgba(255, 255, 255, 0.02);
+  text-transform: uppercase;
+  font-size: 11px !important;
+  letter-spacing: 0.1em;
+}
+
+.rbc-wrapper .rbc-agenda-time-cell {
+  font-weight: 700;
+  color: var(--color-muted-foreground);
+  font-size: 12px !important;
+  opacity: 0.6;
+}
+
+.rbc-wrapper .rbc-agenda-event-cell {
+  font-weight: 900;
+  color: var(--color-foreground);
+  font-family: var(--font-manrope);
+  letter-spacing: -0.02em;
+}
+
+.rbc-wrapper .rbc-agenda-view table.rbc-agenda-table tbody > tr:hover > td {
+  background-color: rgba(255, 255, 255, 0.02);
+}

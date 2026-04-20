@@ -1,0 +1,340 @@
+PRAGMA journal_mode = WAL
+CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    role TEXT NOT NULL,
+    department TEXT,
+    createdAt TEXT NOT NULL,
+    avatar TEXT
+  );
+CREATE TABLE IF NOT EXISTS clubs (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    department TEXT NOT NULL,
+    description TEXT,
+    shortDescription TEXT,
+    status TEXT NOT NULL,
+    logo TEXT,
+    coverImage TEXT,
+    memberCount INTEGER DEFAULT 0,
+    tags TEXT,
+    createdAt TEXT NOT NULL
+  );
+CREATE TABLE IF NOT EXISTS club_reps (
+    clubId TEXT NOT NULL,
+    userId TEXT NOT NULL,
+    PRIMARY KEY (clubId, userId),
+    FOREIGN KEY(clubId) REFERENCES clubs(id),
+    FOREIGN KEY(userId) REFERENCES users(id)
+  );
+CREATE TABLE IF NOT EXISTS club_members (
+    id TEXT PRIMARY KEY,
+    clubId TEXT NOT NULL,
+    userId TEXT,
+    name TEXT NOT NULL,
+    email TEXT,
+    role TEXT NOT NULL,
+    joinDate TEXT NOT NULL,
+    FOREIGN KEY(clubId) REFERENCES clubs(id)
+  );
+CREATE TABLE IF NOT EXISTS events (
+    id TEXT PRIMARY KEY,
+    clubId TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT,
+    shortDescription TEXT,
+    date TEXT NOT NULL,
+    startTime TEXT,
+    endTime TEXT,
+    venue TEXT,
+    mode TEXT NOT NULL,
+    status TEXT NOT NULL,
+    capacity INTEGER,
+    tags TEXT,
+    coverImage TEXT,
+    registrationLink TEXT,
+    createdBy TEXT,
+    createdAt TEXT,
+    updatedAt TEXT,
+    FOREIGN KEY(clubId) REFERENCES clubs(id)
+  );
+CREATE TABLE IF NOT EXISTS hackathons (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    organizer TEXT NOT NULL,
+    description TEXT,
+    deadline TEXT NOT NULL,
+    startDate TEXT NOT NULL,
+    endDate TEXT NOT NULL,
+    venue TEXT,
+    mode TEXT NOT NULL,
+    applyLink TEXT,
+    coverImage TEXT,
+    tags TEXT,
+    teamFormationActive BOOLEAN NOT NULL DEFAULT 1
+  );
+CREATE TABLE IF NOT EXISTS hackathon_teams (
+    id TEXT PRIMARY KEY,
+    hackathonId TEXT NOT NULL,
+    name TEXT NOT NULL,
+    leaderId TEXT,
+    status TEXT NOT NULL,
+    FOREIGN KEY(hackathonId) REFERENCES hackathons(id)
+  );
+CREATE TABLE IF NOT EXISTS event_registrations (
+    id TEXT PRIMARY KEY,
+    eventId TEXT NOT NULL,
+    userId TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'registered',
+    registeredAt TEXT NOT NULL,
+    FOREIGN KEY(eventId) REFERENCES events(id),
+    FOREIGN KEY(userId) REFERENCES users(id)
+  );
+SELECT count(*) as count FROM users WHERE email = 'admin@university.edu'
+UniClub Elite API serving at http://localhost:3001
+
+      INSERT INTO clubs (id, name, department, description, shortDescription, status, logo, coverImage, memberCount, tags, createdAt)
+      VALUES ('967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/, 'Test Club', 'Test Dept', NULL, NULL, 'approved', '🏛️', NULL, 0, '', '2026-04-17T17:18:29.556Z')
+    
+SELECT * FROM clubs WHERE id = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+SELECT * FROM events
+SELECT * FROM hackathons
+SELECT * FROM events
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+SELECT * FROM hackathons
+SELECT * FROM users WHERE email = 'admin@university.edu' AND password = 'admin123'
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+SELECT * FROM events
+SELECT * FROM hackathons
+SELECT * FROM hackathons
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+SELECT * FROM events
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+SELECT * FROM users WHERE email = 'admin@university.edu' AND password = 'admin123'
+SELECT * FROM club_members WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+SELECT COUNT(*) as count FROM club_members WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/ AND role = 'Club Representative'
+INSERT INTO club_members (id, clubId, userId, name, email, role, joinDate) VALUES ('9ee54cdc-f7d8-434e-b183-380d3469'/*+4 bytes*/, '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/, NULL, 'nihar', '', 'Club Representative', '2026-04-17T17:34:48.582Z')
+UPDATE clubs SET memberCount = memberCount + 1 WHERE id = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+SELECT * FROM hackathons
+SELECT * FROM events
+SELECT * FROM users WHERE email = 'admin@university.edu' AND password = 'admin123'
+
+      INSERT INTO clubs (id, name, department, description, shortDescription, status, logo, coverImage, memberCount, tags, createdAt)
+      VALUES ('079d599d-ee01-4f9c-9fcc-60cc2aa5'/*+4 bytes*/, 'xcfvf', 'svsvs', 'dcsdcdcdcdfvgsfbstgaf', 'sdcdsvv', 'approved', '🏛️', NULL, 0, '', '2026-04-17T17:44:56.581Z')
+    
+SELECT * FROM clubs WHERE id = '079d599d-ee01-4f9c-9fcc-60cc2aa5'/*+4 bytes*/
+INSERT INTO events (id, clubId, title, description, shortDescription, date, startTime, endTime, venue, mode, status, capacity, tags, coverImage, registrationLink, createdBy, createdAt, updatedAt) VALUES ('eb276524-6d8d-4626-ad84-86805731'/*+4 bytes*/, '079d599d-ee01-4f9c-9fcc-60cc2aa5'/*+4 bytes*/, 'wefqrevfqwrv', 'wefqefewrfgqrgqrefvad sd', 'wefqefewrfgqrgqrefvad sd', '2026-04-22', '23:15', '12:15', 'vfdaf adf', 'offline', 'approved', NULL, '', '', '', 'u1', '2026-04-17T17:45:53.800Z', '2026-04-17T17:45:53.800Z')
+SELECT * FROM users WHERE email = 'priya.mehta@university.edu' AND password = 'rep123'
+SELECT * FROM users WHERE email = 'priya.mehta@university.edu' AND password = 'rep123'
+SELECT * FROM users WHERE email = 'vikram.singh@university.edu' AND password = 'rep123'
+SELECT * FROM users WHERE email = 'aisha.khan@university.edu' AND password = 'student123'
+SELECT * FROM users WHERE email = 'aisha.khan@university.edu' AND password = 'student123'
+SELECT id FROM users WHERE email = 'aisha.khan@university.edu'
+INSERT INTO users (id, name, email, password, role, department, createdAt, avatar) VALUES ('c7b15dca-de6c-46de-bbc9-d048591b'/*+4 bytes*/, 'AK', 'aisha.khan@university.edu', 'student123', 'student', 'CSE', '2026-04-17T17:46:44.417Z', NULL)
+UPDATE club_members SET userId = 'c7b15dca-de6c-46de-bbc9-d048591b'/*+4 bytes*/ WHERE email = 'aisha.khan@university.edu'
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+SELECT userId FROM club_reps WHERE clubId = '079d599d-ee01-4f9c-9fcc-60cc2aa5'/*+4 bytes*/
+SELECT * FROM events
+SELECT * FROM hackathons
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+SELECT userId FROM club_reps WHERE clubId = '079d599d-ee01-4f9c-9fcc-60cc2aa5'/*+4 bytes*/
+SELECT * FROM events
+SELECT * FROM hackathons
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+SELECT userId FROM club_reps WHERE clubId = '079d599d-ee01-4f9c-9fcc-60cc2aa5'/*+4 bytes*/
+SELECT * FROM hackathons
+SELECT * FROM events
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+SELECT userId FROM club_reps WHERE clubId = '079d599d-ee01-4f9c-9fcc-60cc2aa5'/*+4 bytes*/
+SELECT * FROM hackathons
+SELECT * FROM events
+SELECT * FROM events
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+SELECT userId FROM club_reps WHERE clubId = '079d599d-ee01-4f9c-9fcc-60cc2aa5'/*+4 bytes*/
+SELECT * FROM hackathons
+SELECT * FROM events
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+SELECT userId FROM club_reps WHERE clubId = '079d599d-ee01-4f9c-9fcc-60cc2aa5'/*+4 bytes*/
+SELECT * FROM hackathons
+SELECT * FROM events
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+SELECT userId FROM club_reps WHERE clubId = '079d599d-ee01-4f9c-9fcc-60cc2aa5'/*+4 bytes*/
+SELECT * FROM hackathons
+SELECT * FROM events
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+SELECT userId FROM club_reps WHERE clubId = '079d599d-ee01-4f9c-9fcc-60cc2aa5'/*+4 bytes*/
+SELECT * FROM hackathons
+SELECT * FROM events
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+SELECT userId FROM club_reps WHERE clubId = '079d599d-ee01-4f9c-9fcc-60cc2aa5'/*+4 bytes*/
+SELECT * FROM hackathons
+SELECT * FROM users WHERE email = 'admin@university.edu' AND password = 'admin123'
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+SELECT userId FROM club_reps WHERE clubId = '079d599d-ee01-4f9c-9fcc-60cc2aa5'/*+4 bytes*/
+SELECT * FROM events
+SELECT * FROM hackathons
+SELECT * FROM users WHERE email = 'admin@university.edu' AND password = 'admin123'
+BEGIN
+DELETE FROM events WHERE clubId = '079d599d-ee01-4f9c-9fcc-60cc2aa5'/*+4 bytes*/
+DELETE FROM club_members WHERE clubId = '079d599d-ee01-4f9c-9fcc-60cc2aa5'/*+4 bytes*/
+DELETE FROM club_reps WHERE clubId = '079d599d-ee01-4f9c-9fcc-60cc2aa5'/*+4 bytes*/
+DELETE FROM clubs WHERE id = '079d599d-ee01-4f9c-9fcc-60cc2aa5'/*+4 bytes*/
+COMMIT
+BEGIN
+DELETE FROM events WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+DELETE FROM club_members WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+DELETE FROM club_reps WHERE clubId = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+DELETE FROM clubs WHERE id = '967361e9-63ec-4c6c-9259-9a929ddc'/*+4 bytes*/
+COMMIT
+DELETE FROM events WHERE id = 'eb276524-6d8d-4626-ad84-86805731'/*+4 bytes*/
+DELETE FROM events WHERE id = 'eb276524-6d8d-4626-ad84-86805731'/*+4 bytes*/
+SELECT * FROM events
+SELECT * FROM clubs
+SELECT * FROM hackathons
+SELECT * FROM users WHERE email = 'admin@university.edu' AND password = 'admin123'
+SELECT * FROM clubs
+SELECT * FROM events
+SELECT * FROM hackathons
+SELECT * FROM clubs
+SELECT * FROM events
+SELECT * FROM hackathons
+SELECT * FROM users WHERE email = 'admin@university.edu' AND password = 'admin123'
+SELECT * FROM clubs
+SELECT * FROM events
+SELECT * FROM hackathons
+SELECT * FROM users WHERE email = 'admin@university.edu' AND password = 'admin123'
+SELECT * FROM users WHERE email = 'admin@university.edu' AND password = 'admin123'
+
+      INSERT INTO clubs (id, name, department, description, shortDescription, status, logo, coverImage, memberCount, tags, createdAt)
+      VALUES ('9e6123e9-a524-482f-97fa-0b307130'/*+4 bytes*/, 'Test Club', 'Verification Dept', '', 'A club for testing purposes.', 'approved', '🏛️', NULL, 0, '', '2026-04-17T18:20:39.847Z')
+    
+SELECT * FROM clubs WHERE id = '9e6123e9-a524-482f-97fa-0b307130'/*+4 bytes*/
+INSERT INTO events (id, clubId, title, description, shortDescription, date, startTime, endTime, venue, mode, status, capacity, tags, coverImage, registrationLink, createdBy, createdAt, updatedAt) VALUES ('03e4fe2c-06b3-498d-8ce8-95ec5135'/*+4 bytes*/, '9e6123e9-a524-482f-97fa-0b307130'/*+4 bytes*/, 'Admin Verification Event', 'This event is created by admin t'/*+18 bytes*/, 'This event is created by admin t'/*+18 bytes*/, '2026-12-31', '10:00', '12:00', 'Main Auditorium', 'offline', 'approved', NULL, '', 'data:image/jpeg;base64,/9j/4AAQS'/*+92347 bytes*/, '', 'u1', '2026-04-17T18:26:42.870Z', '2026-04-17T18:26:42.878Z')
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '9e6123e9-a524-482f-97fa-0b307130'/*+4 bytes*/
+SELECT * FROM events
+SELECT * FROM hackathons
+SELECT * FROM users WHERE email = 'admin@university.edu' AND password = 'admin123admin123'
+SELECT * FROM users WHERE email = 'admin@university.edu' AND password = 'admin123'
+SELECT * FROM events
+SELECT * FROM hackathons
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '9e6123e9-a524-482f-97fa-0b307130'/*+4 bytes*/
+SELECT * FROM users WHERE email = 'admin@university.edu' AND password = 'admin123'
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '9e6123e9-a524-482f-97fa-0b307130'/*+4 bytes*/
+SELECT * FROM events
+SELECT * FROM hackathons
+SELECT * FROM users WHERE email = 'priya.mehta@university.edu' AND password = 'rep123'
+SELECT * FROM users WHERE email = 'priya.mehta@university.edu' AND password = 'rep123'
+SELECT * FROM users WHERE email = 'priya.mehta@university.edu' AND password = 'rep123'
+SELECT * FROM users WHERE email = 'priya.mehta@university.edu' AND password = 'rep123'
+SELECT * FROM users WHERE email = 'admin@university.edu' AND password = 'rep123'
+SELECT * FROM users WHERE email = 'priya.mehta@university.edu' AND password = 'rep123'
+DELETE FROM events WHERE id = '03e4fe2c-06b3-498d-8ce8-95ec5135'/*+4 bytes*/
+DELETE FROM event_registrations WHERE eventId = '03e4fe2c-06b3-498d-8ce8-95ec5135'/*+4 bytes*/
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '9e6123e9-a524-482f-97fa-0b307130'/*+4 bytes*/
+SELECT * FROM events
+SELECT * FROM hackathons
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '9e6123e9-a524-482f-97fa-0b307130'/*+4 bytes*/
+SELECT * FROM events
+SELECT * FROM hackathons
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '9e6123e9-a524-482f-97fa-0b307130'/*+4 bytes*/
+SELECT * FROM events
+SELECT * FROM hackathons
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '9e6123e9-a524-482f-97fa-0b307130'/*+4 bytes*/
+SELECT * FROM hackathons
+SELECT * FROM events
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '9e6123e9-a524-482f-97fa-0b307130'/*+4 bytes*/
+SELECT * FROM hackathons
+SELECT * FROM events
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '9e6123e9-a524-482f-97fa-0b307130'/*+4 bytes*/
+SELECT * FROM hackathons
+SELECT * FROM events
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '9e6123e9-a524-482f-97fa-0b307130'/*+4 bytes*/
+SELECT * FROM hackathons
+SELECT * FROM events
+SELECT * FROM users WHERE email = 'admin@university.edu' AND password = 'admin123'
+SELECT * FROM users WHERE email = 'priya.mehta@university.edu' AND password = 'rep123'
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '9e6123e9-a524-482f-97fa-0b307130'/*+4 bytes*/
+SELECT * FROM hackathons
+SELECT * FROM events
+SELECT * FROM users WHERE email = 'admin@university.edu' AND password = 'admin123'
+BEGIN
+DELETE FROM events WHERE clubId = '9e6123e9-a524-482f-97fa-0b307130'/*+4 bytes*/
+DELETE FROM club_members WHERE clubId = '9e6123e9-a524-482f-97fa-0b307130'/*+4 bytes*/
+DELETE FROM club_reps WHERE clubId = '9e6123e9-a524-482f-97fa-0b307130'/*+4 bytes*/
+DELETE FROM clubs WHERE id = '9e6123e9-a524-482f-97fa-0b307130'/*+4 bytes*/
+COMMIT
+
+      INSERT INTO clubs (id, name, department, description, shortDescription, status, logo, coverImage, memberCount, tags, createdAt)
+      VALUES ('4d359640-d8f9-4d77-ba28-3ecb451e'/*+4 bytes*/, 'DV', 'DS', 'Dataverse by department of DS ba'/*+11 bytes*/, 'Dataverse by department of DS', 'approved', '🏛️', NULL, 0, 'DS', '2026-04-19T14:43:08.243Z')
+    
+SELECT * FROM clubs WHERE id = '4d359640-d8f9-4d77-ba28-3ecb451e'/*+4 bytes*/
+UPDATE clubs SET name = 'DV', shortDescription = 'Dataverse by department of DS', description = 'Dataverse by department of DS ba'/*+11 bytes*/, logo = '🏛️', department = 'DS', tags = 'DS', coverImage = 'data:image/jpeg;base64,/9j/4AAQS'/*+92347 bytes*/ WHERE id = '4d359640-d8f9-4d77-ba28-3ecb451e'/*+4 bytes*/
+SELECT * FROM clubs WHERE id = '4d359640-d8f9-4d77-ba28-3ecb451e'/*+4 bytes*/
+SELECT userId FROM club_reps WHERE clubId = '4d359640-d8f9-4d77-ba28-3ecb451e'/*+4 bytes*/
+SELECT * FROM club_members WHERE clubId = '4d359640-d8f9-4d77-ba28-3ecb451e'/*+4 bytes*/
+INSERT INTO club_members (id, clubId, userId, name, email, role, joinDate) VALUES ('7917401f-ded1-4636-9a6d-8f9fd371'/*+4 bytes*/, '4d359640-d8f9-4d77-ba28-3ecb451e'/*+4 bytes*/, NULL, 'Nihar ', '', 'Vice President', '2026-04-19T14:43:49.683Z')
+UPDATE clubs SET memberCount = memberCount + 1 WHERE id = '4d359640-d8f9-4d77-ba28-3ecb451e'/*+4 bytes*/
+SELECT * FROM club_members WHERE clubId = '4d359640-d8f9-4d77-ba28-3ecb451e'/*+4 bytes*/
+SELECT * FROM club_members WHERE id = '7917401f-ded1-4636-9a6d-8f9fd371'/*+4 bytes*/
+DELETE FROM club_members WHERE id = '7917401f-ded1-4636-9a6d-8f9fd371'/*+4 bytes*/ AND clubId = '4d359640-d8f9-4d77-ba28-3ecb451e'/*+4 bytes*/
+UPDATE clubs SET memberCount = memberCount - 1 WHERE id = '4d359640-d8f9-4d77-ba28-3ecb451e'/*+4 bytes*/
+INSERT INTO events (id, clubId, title, description, shortDescription, date, startTime, endTime, venue, mode, status, capacity, tags, coverImage, registrationLink, createdBy, createdAt, updatedAt) VALUES ('0bd9a737-736c-416f-9174-5165ec50'/*+4 bytes*/, '4d359640-d8f9-4d77-ba28-3ecb451e'/*+4 bytes*/, 'python by DV', 'Complete guid to learning python'/*+8 bytes*/, 'Complete guid to learning python'/*+8 bytes*/, '2026-04-20', '12:30', '13:30', 'C - block ', 'offline', 'approved', 50.0, '', 'data:image/jpeg;base64,/9j/4AAQS'/*+60339 bytes*/, '', 'u1', '2026-04-19T14:45:09.968Z', '2026-04-19T14:45:09.968Z')
+SELECT * FROM events
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '4d359640-d8f9-4d77-ba28-3ecb451e'/*+4 bytes*/
+SELECT * FROM hackathons
+SELECT * FROM users WHERE email = 'admin@university.edu' AND password = 'admin123'
+SELECT * FROM hackathons
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '4d359640-d8f9-4d77-ba28-3ecb451e'/*+4 bytes*/
+SELECT * FROM events
+SELECT * FROM events
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '4d359640-d8f9-4d77-ba28-3ecb451e'/*+4 bytes*/
+SELECT * FROM hackathons
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '4d359640-d8f9-4d77-ba28-3ecb451e'/*+4 bytes*/
+SELECT * FROM events
+SELECT * FROM hackathons
+SELECT * FROM users WHERE email = 'admin@university.edu' AND password = 'admin123'
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '4d359640-d8f9-4d77-ba28-3ecb451e'/*+4 bytes*/
+SELECT * FROM events
+SELECT * FROM hackathons
+SELECT * FROM users WHERE email = 'admin@university.edu' AND password = 'admin123'
+SELECT * FROM hackathons
+SELECT * FROM clubs
+SELECT userId FROM club_reps WHERE clubId = '4d359640-d8f9-4d77-ba28-3ecb451e'/*+4 bytes*/
+SELECT * FROM events
+SELECT * FROM users WHERE email = 'admin@university.edu' AND password = 'admin123'
