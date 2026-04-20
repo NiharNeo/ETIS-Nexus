@@ -1,10 +1,19 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Replace with your actual Supabase Project URL
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project-id.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Supabase environment variables are missing! Check your Vercel settings.');
+  console.log('Project URL exists:', !!supabaseUrl);
+  console.log('Anon Key exists:', !!supabaseAnonKey);
+}
+
+export const supabase = createClient(
+  supabaseUrl || 'https://invalid-url.supabase.co', 
+  supabaseAnonKey || 'missing-key'
+);
 
 /**
  * Uploads a file to a Supabase storage bucket and returns the public URL.
