@@ -24,7 +24,7 @@ import type {
 type AppNotification = Notification;
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
-import { ShieldAlert } from 'lucide-react';
+import { ShieldAlert, Bell } from 'lucide-react';
 
 interface DataContextValue {
   isLoading: boolean;
@@ -262,6 +262,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }
   }), []);
 
+
   useEffect(() => {
     async function loadData() {
       setIsLoading(true);
@@ -324,6 +325,41 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       }
     }
     loadData();
+
+    // Subscribe to Realtime Notifications
+    if (user) {
+      const channel = supabase
+        .channel(`user-notifications-${user.id}`)
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
+          (payload) => {
+            console.log('Real-time notification received:', payload);
+            const newNotif = mapNotification(payload.new);
+            setAppNotifications((prev) => [newNotif, ...prev]);
+            
+            // Trigger a visual toast as well
+            toast.info(newNotif.title, {
+              description: newNotif.message,
+              icon: <Bell size={16} className="text-primary" />
+            });
+          }
+        )
+        .on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
+          (payload) => {
+            setAppNotifications((prev) => 
+              prev.map(n => n.id === payload.new.id ? mapNotification(payload.new) : n)
+            );
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
   }, [user, mapClub, mapEvent, mapHackathon, mapProject, mapMemory, mapWikiArticle, mapContribution, mapAnnouncement, mapNotification, mapMembershipRequest, mapRegistration]);
 
   const addClub = useCallback(async (data: ClubFormData): Promise<Club | null> => {
@@ -396,6 +432,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+
   const addEvent = useCallback(async (data: any): Promise<ClubEvent | null> => {
     try {
       const { data: newEvent, error } = await supabase
@@ -410,7 +447,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           end_time: data.endTime,
           venue: data.venue,
           mode: data.mode,
-          status: 'pending',
+          status: data.status || 'pending',
           capacity: data.capacity,
           registration_link: data.registrationLink,
           tags: typeof data.tags === 'string' ? data.tags.split(',').map((t: string) => t.trim()) : data.tags,
@@ -423,12 +460,30 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
       const mapped = mapEvent(newEvent);
       setEvents(prev => [...prev, mapped]);
+
+      // Notify Super Admins for approval if it's pending
+      if (mapped.status === 'pending') {
+        const { data: admins } = await supabase.from('profiles').select('id').eq('role', 'super_admin');
+        if (admins) {
+          const clubName = clubs.find(c => c.id === data.clubId)?.name || 'a Club';
+          await Promise.all(admins.map(admin => 
+            supabase.from('notifications').insert({
+              user_id: admin.id,
+              title: 'New Mission Proposed',
+              message: `${clubName} has proposed "${mapped.title}". Approval required.`,
+              type: 'info',
+              link: '/admin/events'
+            })
+          ));
+        }
+      }
+
       return mapped;
     } catch (err) {
       console.error('Failed to create event:', err);
       return null;
     }
-  }, [user, mapEvent]);
+  }, [user, mapEvent, clubs]);
 
   const updateEvent = useCallback(async (id: string, updates: Partial<ClubEvent>) => {
     try {
@@ -462,13 +517,44 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+
   const approveEvent = useCallback(async (id: string) => {
-    await updateEvent(id, { status: 'approved' });
-  }, [updateEvent]);
+    try {
+      const event = events.find(e => e.id === id);
+      await updateEvent(id, { status: 'approved' });
+      
+      if (event) {
+        await supabase.from('notifications').insert({
+          user_id: event.createdBy,
+          title: 'Mission Authorized',
+          message: `Your confluence "${event.title}" has been authorized by the Nexus.`,
+          type: 'success',
+          link: '/rep/events'
+        });
+      }
+    } catch (err) {
+      console.error('Failed to approve event:', err);
+    }
+  }, [updateEvent, events]);
 
   const rejectEvent = useCallback(async (id: string, reason: string) => {
-    await updateEvent(id, { status: 'rejected' });
-  }, [updateEvent]);
+    try {
+      const event = events.find(e => e.id === id);
+      await updateEvent(id, { status: 'rejected' });
+      
+      if (event) {
+        await supabase.from('notifications').insert({
+          user_id: event.createdBy,
+          title: 'Initialization Rejected',
+          message: `Mission "${event.title}" requires recalibration. Reason: ${reason}`,
+          type: 'error',
+          link: '/rep/events'
+        });
+      }
+    } catch (err) {
+      console.error('Failed to reject event:', err);
+    }
+  }, [updateEvent, events]);
 
   const submitForApproval = useCallback(async (id: string) => {
     await updateEvent(id, { status: 'pending' });
@@ -814,9 +900,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user]);
 
+
   const resolveMembershipRequest = useCallback(async (requestId: string, approve: boolean): Promise<boolean> => {
     try {
-      const { data: request } = await supabase.from('membership_requests').select('*').eq('id', requestId).single();
+      const { data: request } = await supabase.from('membership_requests').select('*, clubs(name)').eq('id', requestId).single();
       if (approve && request) {
         const { data: profile } = await supabase.from('profiles').select('name, email').eq('id', request.user_id).single();
         await supabase.from('club_members').insert({
@@ -830,6 +917,20 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         status: approve ? 'approved' : 'rejected',
         resolved_at: new Date().toISOString()
       }).eq('id', requestId);
+
+      if (request) {
+        const clubName = request.clubs?.name || 'the club';
+        await supabase.from('notifications').insert({
+          user_id: request.user_id,
+          title: approve ? 'Membership Authorized' : 'Membership Rejected',
+          message: approve 
+            ? `Your request to join ${clubName} has been authorized. Welcome to the sector.`
+            : `Your request to join ${clubName} was not authorized at this time.`,
+          type: approve ? 'success' : 'error',
+          link: `/clubs/${request.club_id}`
+        });
+      }
+
       setMembershipRequests(prev => prev.filter(r => r.id !== requestId));
       return true;
     } catch (err) {
