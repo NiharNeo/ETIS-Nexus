@@ -844,10 +844,21 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         }
       }
       const { data: allReps } = await supabase.from('club_reps').select('*');
-      setClubs(prev => prev.map(c => ({
-        ...c,
-        repIds: allReps?.filter(r => r.club_id === c.id).map(r => r.user_id) || []
-      })));
+      
+      // Sync member count
+      const { count: memberCount } = await supabase.from('club_members').select('*', { count: 'exact', head: true }).eq('club_id', clubId);
+      if (memberCount !== null) {
+        await supabase.from('clubs').update({ member_count: memberCount }).eq('id', clubId);
+        setClubs(prev => prev.map(c => c.id === clubId ? { ...c, memberCount: memberCount, repIds: allReps?.filter(r => r.club_id === c.id).map(r => r.user_id) || [] } : {
+          ...c,
+          repIds: allReps?.filter(r => r.club_id === c.id).map(r => r.user_id) || []
+        }));
+      } else {
+        setClubs(prev => prev.map(c => ({
+          ...c,
+          repIds: allReps?.filter(r => r.club_id === c.id).map(r => r.user_id) || []
+        })));
+      }
       return true;
     } catch (err) {
       console.error('Failed to assign rep:', err);
@@ -947,6 +958,15 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           type: approve ? 'success' : 'error',
           link: `/clubs/${request.club_id}`
         });
+      }
+
+      if (approve && request) {
+        // Sync member count after approval
+        const { count: memberCount } = await supabase.from('club_members').select('*', { count: 'exact', head: true }).eq('club_id', request.club_id);
+        if (memberCount !== null) {
+          await supabase.from('clubs').update({ member_count: memberCount }).eq('id', request.club_id);
+          setClubs(prev => prev.map(c => c.id === request.club_id ? { ...c, memberCount: memberCount } : c));
+        }
       }
 
       setMembershipRequests(prev => prev.filter(r => r.id !== requestId));

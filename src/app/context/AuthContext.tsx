@@ -7,6 +7,7 @@ interface AuthContextValue extends AuthState {
   registerUser: (data: { name: string; email: string; password: string; department?: string }) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => void;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -164,6 +165,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user]);
 
+  const refreshProfile = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      await fetchProfile(session.user.id, session.access_token);
+    }
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -175,6 +183,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         registerUser,
         logout,
         updateUser,
+        refreshProfile,
       }}
     >
       {children}
