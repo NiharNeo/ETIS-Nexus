@@ -661,40 +661,44 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const registerForEvent = useCallback(async (eventId: string): Promise<EventRegistration | null> => {
     if (!user) return null;
     try {
-      let { data, error } = await supabase
+      // Step 1: INSERT only — no chained .select() to avoid RLS ambiguity
+      const { error: insertError } = await supabase
         .from('registrations')
         .insert({
           event_id: eventId,
           user_id: user.id,
           status: 'registered'
-        })
-        .select(`*, profiles(name, email, department)`)
-        .single();
-      
-      if (error) {
-        // Handle duplicate registration — the user is already registered, fetch the existing record
-        if (error.code === '23505') {
-          console.info('User already registered — fetching existing registration');
-          const { data: existing, error: fetchErr } = await supabase
-            .from('registrations')
-            .select(`*, profiles(name, email, department)`)
-            .eq('event_id', eventId)
-            .eq('user_id', user.id)
-            .single();
-          if (fetchErr || !existing) return null;
-          const mapped = mapRegistration(existing);
-          setRegistrations(prev => {
-            const already = prev.find(r => r.id === mapped.id);
-            return already ? prev.map(r => r.id === mapped.id ? mapped : r) : [...prev, mapped];
-          });
-          return mapped;
+        });
+
+      if (insertError) {
+        // Duplicate key = user already registered; that's OK — proceed to fetch
+        if (insertError.code !== '23505') {
+          throw insertError;
         }
-        throw error;
+        console.info('User already registered — fetching existing registration.');
       }
 
-      if (!data) return null;
+      // Step 2: Fetch the registration row (new or existing) via explicit SELECT
+      const { data, error: fetchError } = await supabase
+        .from('registrations')
+        .select(`*, profiles(name, email, department)`)
+        .eq('event_id', eventId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (fetchError || !data) {
+        console.error('Failed to fetch registration after insert:', fetchError);
+        return null;
+      }
+
       const mapped = mapRegistration(data);
-      setRegistrations(prev => [...prev, mapped]);
+      // Upsert into local state
+      setRegistrations(prev => {
+        const exists = prev.find(r => r.id === mapped.id);
+        return exists
+          ? prev.map(r => r.id === mapped.id ? mapped : r)
+          : [...prev, mapped];
+      });
       return mapped;
     } catch (err) {
       console.error('Failed to register for event:', err);
