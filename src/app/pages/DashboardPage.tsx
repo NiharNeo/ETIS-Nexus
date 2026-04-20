@@ -175,12 +175,14 @@ export default function DashboardPage() {
           >
             Browse Events
           </button>
-          <button
-            onClick={() => { console.log('Create Event clicked'); navigate('/rep/events/new'); }}
-            className="px-8 py-4 rounded-2xl bg-black text-white font-black uppercase text-xs tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
-          >
-            <Plus size={18} /> Create Event
-          </button>
+          {(user?.role === 'super_admin' || user?.role === 'club_rep') && (
+            <button
+              onClick={() => { console.log('Create Event clicked'); navigate('/rep/events/new'); }}
+              className="px-8 py-4 rounded-2xl bg-black text-white font-black uppercase text-xs tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+            >
+              <Plus size={18} /> Create Event
+            </button>
+          )}
           
           {user?.role === 'super_admin' && (
             <button
