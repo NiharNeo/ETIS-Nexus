@@ -10,6 +10,15 @@ export interface User {
   clubIds?: string[]; // for club_rep: clubs they manage
   department?: string;
   createdAt: string;
+  settings?: {
+    theme?: string;
+    widgets?: {
+      activity: boolean;
+      growth: boolean;
+      updates: boolean;
+      events: boolean;
+    };
+  };
 }
 
 export interface AuthState {

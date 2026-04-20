@@ -3,24 +3,25 @@ import { useData } from '../context/DataContext';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import {
-  Users,
-  CalendarDays,
-  BookOpen,
-  Clock,
-  TrendingUp,
-  ArrowRight,
-  BarChart2,
-  Activity,
-  Zap,
-  Globe,
-  Sparkles,
   Plus,
   Building2,
+  Settings2,
+  Palette,
+  Eye,
+  EyeOff,
+  Zap,
+  Activity,
+  BarChart2,
+  ArrowRight,
+  Globe,
+  CalendarDays,
+  Sparkles
 } from 'lucide-react';
 import { Modal } from '../components/common/Modal';
 import { BentoGrid, BentoCard } from '../components/ui/bento-grid';
 import { EventDetailModal } from '../components/events/EventDetailModal';
 import { Skeleton } from '../components/ui/skeleton';
+import { useAesthetics, AestheticTheme } from '../context/ThemeContext';
 import type { ClubEvent, ClubFormData } from '../types';
 import { toast } from 'sonner';
 import { CheckCircle2 } from 'lucide-react';
@@ -41,9 +42,11 @@ import { motion } from 'framer-motion';
 export default function DashboardPage() {
   const { user } = useAuth();
   const { clubs, events, isLoading } = useData();
+  const { theme, setTheme, widgets, setWidgetVisibility } = useAesthetics();
   const navigate = useNavigate();
   const [selectedEvent, setSelectedEvent] = useState<ClubEvent | null>(null);
   const [isAddClubModalOpen, setIsAddClubModalOpen] = useState(false);
+  const [isAestheticsModalOpen, setIsAestheticsModalOpen] = useState(false);
   const [newClubData, setNewClubData] = useState<ClubFormData>({
     name: '',
     department: '',
@@ -170,6 +173,15 @@ export default function DashboardPage() {
         </div>
         <div className="flex items-center gap-4 relative z-50">
           <button
+            onClick={() => setIsAestheticsModalOpen(true)}
+            className="px-6 py-4 rounded-2xl bg-zinc-100 text-black/60 hover:text-black hover:bg-zinc-200 transition-all flex items-center gap-2 group"
+            title="Recalibrate Interface"
+          >
+            <Settings2 size={18} className="group-hover:rotate-90 transition-transform duration-500" />
+            <span className="hidden lg:inline text-[10px] font-black uppercase tracking-widest">Recalibrate</span>
+          </button>
+
+          <button
             onClick={() => { console.log('Browse Events clicked'); navigate('/events'); }}
             className="px-8 py-4 rounded-2xl bg-white border-2 border-black text-black font-black uppercase text-xs tracking-widest hover:bg-zinc-50 transition-all shadow-sm"
           >
@@ -198,104 +210,112 @@ export default function DashboardPage() {
 
       {/* Bento Grid Layout - High Contrast */}
       <BentoGrid>
-        <BentoCard
-          className="md:col-span-2 bg-white border border-black/5"
-          title="Campus Activity"
-          description="A summary of university engagement metrics."
-          header={
-            <div className="flex-1 p-8 flex items-center justify-around bg-zinc-50/50">
-              <div className="text-center space-y-1">
-                <p className="text-black/40 font-black text-[10px] uppercase tracking-widest">Total Clubs</p>
-                <h3 className="text-6xl font-black text-black tracking-tighter">{stats.totalClubs}</h3>
-              </div>
-              <div className="w-px h-16 bg-black/10" />
-              <div className="text-center space-y-1">
-                <p className="text-black/40 font-black text-[10px] uppercase tracking-widest">Live Events</p>
-                <h3 className="text-6xl font-black text-black tracking-tighter">{stats.totalEvents}</h3>
-              </div>
-              <div className="w-px h-16 bg-black/10" />
-              <div className="text-center space-y-1">
-                <p className="text-black/40 font-black text-[10px] uppercase tracking-widest">This Week</p>
-                <h3 className="text-6xl font-black text-black tracking-tighter">{stats.thisWeek}</h3>
-              </div>
-            </div>
-          }
-          icon={<Activity size={20} className="text-black" />}
-        />
-
-        <BentoCard
-          className="md:col-span-1 bg-white border border-black/5"
-          title="Monthly Growth"
-          description="Approved events over the last six months."
-          header={
-            <div className="flex-1 w-full h-full p-6 pt-10 overflow-hidden bg-zinc-50/30">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <Bar dataKey="approved" radius={[4, 4, 0, 0]}>
-                    {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={index === chartData.length - 1 ? '#000000' : 'rgba(0,0,0,0.1)'} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          }
-          icon={<BarChart2 size={20} className="text-black" />}
-        />
-
-        <BentoCard
-          className="md:col-span-1 bg-white border border-black/5"
-          title="Recent Updates"
-          description="Latest system notifications."
-          header={
-            <div className="flex-1 p-6 space-y-4 overflow-y-auto max-h-[300px]">
-              {recentActivity.map((event) => (
-                <div key={event.id} className="flex items-center gap-3 p-4 rounded-2xl bg-zinc-50 hover:bg-black hover:text-white transition-all cursor-pointer group border border-black/5">
-                  <div className="w-2 h-2 rounded-full bg-black group-hover:bg-white" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-black truncate uppercase tracking-tight">{event.title}</p>
-                    <p className="text-[9px] font-bold opacity-40 group-hover:opacity-60 uppercase">{format(new Date(event.updatedAt), 'MMM d • HH:mm')}</p>
-                  </div>
-                  <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 transition-all" />
+        {widgets.activity && (
+          <BentoCard
+            className="md:col-span-2 bg-white border border-black/5"
+            title="Campus Activity"
+            description="A summary of university engagement metrics."
+            header={
+              <div className="flex-1 p-8 flex items-center justify-around bg-zinc-50/50">
+                <div className="text-center space-y-1">
+                  <p className="text-black/40 font-black text-[10px] uppercase tracking-widest">Total Clubs</p>
+                  <h3 className="text-6xl font-black text-black tracking-tighter">{stats.totalClubs}</h3>
                 </div>
-              ))}
-            </div>
-          }
-          icon={<Globe size={20} className="text-black" />}
-        />
+                <div className="w-px h-16 bg-black/10" />
+                <div className="text-center space-y-1">
+                  <p className="text-black/40 font-black text-[10px] uppercase tracking-widest">Live Events</p>
+                  <h3 className="text-6xl font-black text-black tracking-tighter">{stats.totalEvents}</h3>
+                </div>
+                <div className="w-px h-16 bg-black/10" />
+                <div className="text-center space-y-1">
+                  <p className="text-black/40 font-black text-[10px] uppercase tracking-widest">This Week</p>
+                  <h3 className="text-6xl font-black text-black tracking-tighter">{stats.thisWeek}</h3>
+                </div>
+              </div>
+            }
+            icon={<Activity size={20} className="text-black" />}
+          />
+        )}
 
-        <BentoCard
-          className="md:col-span-2 bg-white border border-black/5"
-          title="Major Events"
-          description="High-priority events coming up in the university."
-          header={
-            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 p-6 bg-zinc-50/20">
-              {upcomingEvents.map((event) => {
-                const club = clubs.find(c => c.id === event.clubId);
-                return (
-                  <div
-                    key={event.id}
-                    onClick={() => setSelectedEvent(event)}
-                    className="p-6 rounded-[2rem] bg-white border border-black/5 hover:border-black transition-all cursor-pointer group shadow-sm"
-                  >
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center font-black text-sm">
-                        {club?.logo || '🏛'}
-                      </div>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-black/40">{club?.name}</span>
+        {widgets.growth && (
+          <BentoCard
+            className="md:col-span-1 bg-white border border-black/5"
+            title="Monthly Growth"
+            description="Approved events over the last six months."
+            header={
+              <div className="flex-1 w-full h-full p-6 pt-10 overflow-hidden bg-zinc-50/30">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData}>
+                    <Bar dataKey="approved" radius={[4, 4, 0, 0]}>
+                      {chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={index === chartData.length - 1 ? 'var(--primary)' : 'rgba(0,0,0,0.1)'} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            }
+            icon={<BarChart2 size={20} className="text-black" />}
+          />
+        )}
+
+        {widgets.updates && (
+          <BentoCard
+            className="md:col-span-1 bg-white border border-black/5"
+            title="Recent Updates"
+            description="Latest system notifications."
+            header={
+              <div className="flex-1 p-6 space-y-4 overflow-y-auto max-h-[300px]">
+                {recentActivity.map((event) => (
+                  <div key={event.id} className="flex items-center gap-3 p-4 rounded-2xl bg-zinc-50 hover:bg-black hover:text-white transition-all cursor-pointer group border border-black/5">
+                    <div className="w-2 h-2 rounded-full bg-black group-hover:bg-white" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-black truncate uppercase tracking-tight">{event.title}</p>
+                      <p className="text-[9px] font-bold opacity-40 group-hover:opacity-60 uppercase">{format(new Date(event.updatedAt), 'MMM d • HH:mm')}</p>
                     </div>
-                    <h4 className="text-lg font-black tracking-tight text-black mb-2 leading-none">{event.title}</h4>
-                    <div className="flex items-center gap-2 text-[10px] text-black font-black uppercase tracking-widest opacity-30">
-                      <CalendarDays size={12} />
-                      {format(new Date(event.date), 'MMMM d, yyyy')}
-                    </div>
+                    <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 transition-all" />
                   </div>
-                );
-              })}
-            </div>
-          }
-          icon={<Sparkles size={20} className="text-black" />}
-        />
+                ))}
+              </div>
+            }
+            icon={<Globe size={20} className="text-black" />}
+          />
+        )}
+
+        {widgets.events && (
+          <BentoCard
+            className="md:col-span-2 bg-white border border-black/5"
+            title="Major Events"
+            description="High-priority events coming up in the university."
+            header={
+              <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 p-6 bg-zinc-50/20">
+                {upcomingEvents.map((event) => {
+                  const club = clubs.find(c => c.id === event.clubId);
+                  return (
+                    <div
+                      key={event.id}
+                      onClick={() => setSelectedEvent(event)}
+                      className="p-6 rounded-[2rem] bg-white border border-black/5 hover:border-black transition-all cursor-pointer group shadow-sm"
+                    >
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center font-black text-sm">
+                          {club?.logo || '🏛'}
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-black/40">{club?.name}</span>
+                      </div>
+                      <h4 className="text-lg font-black tracking-tight text-black mb-2 leading-none">{event.title}</h4>
+                      <div className="flex items-center gap-2 text-[10px] text-black font-black uppercase tracking-widest opacity-30">
+                        <CalendarDays size={12} />
+                        {format(new Date(event.date), 'MMMM d, yyyy')}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            }
+            icon={<Sparkles size={20} className="text-black" />}
+          />
+        )}
       </BentoGrid>
 
       <EventDetailModal
@@ -304,6 +324,81 @@ export default function DashboardPage() {
         open={!!selectedEvent}
         onClose={() => setSelectedEvent(null)}
       />
+
+      <Modal
+        open={isAestheticsModalOpen}
+        onClose={() => setIsAestheticsModalOpen(false)}
+        title="Recalibrate Interface [Aesthetics]"
+      >
+        <div className="p-8 space-y-8 bg-white rounded-[3rem]">
+          <div className="space-y-4">
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-black/40 pl-2 flex items-center gap-2">
+              <Palette size={14} /> Aesthetic Presets
+            </h4>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { id: 'default', name: 'Nexus Standard', color: 'bg-slate-100', text: 'text-slate-900' },
+                { id: 'midnight', name: 'Midnight Protocol', color: 'bg-slate-950', text: 'text-sky-400' },
+                { id: 'cyberpunk', name: 'Cyberpunk Core', color: 'bg-zinc-900', text: 'text-pink-500' },
+                { id: 'emerald', name: 'Emerald Sector', color: 'bg-emerald-950', text: 'text-emerald-400' }
+              ].map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setTheme(t.id as AestheticTheme)}
+                  className={`p-6 rounded-3xl border-2 transition-all text-left relative overflow-hidden group ${
+                    theme === t.id ? 'border-primary' : 'border-black/5 hover:border-black/10'
+                  } ${t.color}`}
+                >
+                  <div className={`font-black text-xs uppercase tracking-tighter ${t.text}`}>{t.name}</div>
+                  {theme === t.id && (
+                    <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary" />
+                  )}
+                  <div className="absolute -bottom-2 -right-2 opacity-10 group-hover:scale-110 transition-transform">
+                    <Zap size={40} className={t.text} />
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-4 border-t border-black/5 pt-8">
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-black/40 pl-2 flex items-center gap-2">
+              <Eye size={14} /> Operational Widgets
+            </h4>
+            <div className="grid grid-cols-1 gap-3">
+              {[
+                { id: 'activity', name: 'Campus Activity Stats', icon: <Activity size={16} /> },
+                { id: 'growth', name: 'Monthly Growth Chart', icon: <BarChart2 size={16} /> },
+                { id: 'updates', name: 'Recent System Updates', icon: <Globe size={16} /> },
+                { id: 'events', name: 'Major Campus Events', icon: <Sparkles size={16} /> },
+              ].map((w) => (
+                <button
+                  key={w.id}
+                  onClick={() => setWidgetVisibility(w.id as any, !widgets[w.id as keyof typeof widgets])}
+                  className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50 hover:bg-zinc-100 transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="text-black/40">{w.icon}</div>
+                    <span className="text-xs font-bold text-black uppercase tracking-tight">{w.name}</span>
+                  </div>
+                  {widgets[w.id as keyof typeof widgets] ? (
+                    <Eye size={16} className="text-primary" />
+                  ) : (
+                    <EyeOff size={16} className="text-black/20" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button
+            onClick={() => setIsAestheticsModalOpen(false)}
+            className="w-full py-5 rounded-2xl bg-black text-white font-black uppercase text-[10px] tracking-widest hover:bg-zinc-800 transition-all shadow-xl shadow-black/20"
+          >
+            Apply Configurations
+          </button>
+        </div>
+      </Modal>
 
       <Modal
         open={isAddClubModalOpen}

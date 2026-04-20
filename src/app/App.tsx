@@ -2,15 +2,16 @@ import { RouterProvider } from 'react-router';
 import { router } from './routes';
 import { AuthProvider } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
-import { ThemeProvider } from 'next-themes';
+import { AestheticProvider } from './context/ThemeContext';
 import { Toaster } from 'sonner';
 
 export default function App() {
   return (
 
     <AuthProvider>
-      <DataProvider>
-        <RouterProvider router={router} />
+      <AestheticProvider>
+        <DataProvider>
+          <RouterProvider router={router} />
         <Toaster
           position="top-right"
           toastOptions={{
@@ -25,6 +26,7 @@ export default function App() {
           }}
         />
       </DataProvider>
+      </AestheticProvider>
     </AuthProvider>
   );
 }
