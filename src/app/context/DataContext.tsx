@@ -75,6 +75,8 @@ interface DataContextValue {
   addNotification: (notif: Omit<AppNotification, 'id' | 'createdAt'>) => Promise<void>;
   // Announcement Actions
   addAnnouncement: (data: Omit<Announcement, 'id' | 'createdAt'>) => Promise<boolean>;
+  updateAnnouncement: (id: string, data: Partial<Announcement>) => Promise<boolean>;
+  deleteAnnouncement: (id: string) => Promise<void>;
   // Membership Actions
   submitMembershipRequest: (clubId: string, message: string) => Promise<boolean>;
   resolveMembershipRequest: (requestId: string, approve: boolean) => Promise<boolean>;
@@ -398,6 +400,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       if (updates.status) dbUpdates.status = updates.status;
       if (updates.logo) dbUpdates.logo = updates.logo;
       if (updates.coverImage) dbUpdates.cover_image = updates.coverImage;
+      if (updates.department) dbUpdates.department = updates.department;
+      if (updates.tags) dbUpdates.tags = updates.tags;
 
       const { data: updated, error } = await supabase
         .from('clubs')
@@ -756,6 +760,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       
       if (error) throw error;
 
+      // Sync member count
+      const { count: memberCount } = await supabase.from('club_members').select('*', { count: 'exact', head: true }).eq('club_id', clubId);
+      if (memberCount !== null) {
+        await supabase.from('clubs').update({ member_count: memberCount }).eq('id', clubId);
+        setClubs(prev => prev.map(c => c.id === clubId ? { ...c, memberCount: memberCount } : c));
+      }
+
       if (memberData.role === 'Club Representative' && memberData.userId) {
         await Promise.all([
           supabase.from('club_reps').upsert({ club_id: clubId, user_id: memberData.userId }),
@@ -780,6 +791,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       const { data: member } = await supabase.from('club_members').select('*').eq('id', memberId).single();
       const { error } = await supabase.from('club_members').delete().eq('id', memberId);
       if (error) throw error;
+
+      // Sync member count
+      const { count: memberCount } = await supabase.from('club_members').select('*', { count: 'exact', head: true }).eq('club_id', clubId);
+      if (memberCount !== null) {
+        await supabase.from('clubs').update({ member_count: memberCount }).eq('id', clubId);
+        setClubs(prev => prev.map(c => c.id === clubId ? { ...c, memberCount: memberCount } : c));
+      }
 
       if (member && member.role === 'Club Representative' && member.user_id) {
         await supabase.from('club_reps').delete().match({ club_id: clubId, user_id: member.user_id });
@@ -939,6 +957,36 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const updateAnnouncement = useCallback(async (id: string, data: Partial<Announcement>) => {
+    try {
+      const { data: updated, error } = await supabase
+        .from('announcements')
+        .update(data)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      setAnnouncements(prev => prev.map(a => a.id === id ? mapAnnouncement(updated) : a));
+      return true;
+    } catch (err) {
+      console.error('Failed to update announcement:', err);
+      return false;
+    }
+  }, [mapAnnouncement]);
+
+  const deleteAnnouncement = useCallback(async (id: string) => {
+    try {
+      const { error } = await supabase.from('announcements').delete().eq('id', id);
+      if (error) throw error;
+      setAnnouncements(prev => prev.filter(a => a.id !== id));
+      toast.success('Broadcast Terminated', {
+        description: 'The signal has been removed from the nexus.'
+      });
+    } catch (err) {
+      console.error('Failed to delete announcement:', err);
+    }
+  }, []);
+
   return (
     <DataContext.Provider
       value={{
@@ -982,6 +1030,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         assignRep,
         addNotification,
         addAnnouncement,
+        updateAnnouncement,
+        deleteAnnouncement,
         submitMembershipRequest,
         resolveMembershipRequest
       }}

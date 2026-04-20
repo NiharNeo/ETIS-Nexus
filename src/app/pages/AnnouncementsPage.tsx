@@ -8,8 +8,9 @@ import { toast } from 'sonner';
 
 export default function AnnouncementsPage() {
   const { user } = useAuth();
-  const { announcements, addAnnouncement } = useData();
+  const { announcements, addAnnouncement, updateAnnouncement, deleteAnnouncement } = useData();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -19,16 +20,31 @@ export default function AnnouncementsPage() {
 
   const handlePost = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
     setIsSubmitting(true);
     try {
-      const success = await addAnnouncement(formData);
-      if (success) {
-        toast.success('Broadcast Transmitted', {
-          description: 'The signal has been amplified across all campus nodes.',
-          icon: <Megaphone className="text-primary" size={16} />
-        });
-        setIsModalOpen(false);
-        setFormData({ title: '', content: '', type: 'global' });
+      if (editingId) {
+        const success = await updateAnnouncement(editingId, formData);
+        if (success) {
+          toast.success('Signal Recalibrated', {
+            description: 'The broadcast has been updated across the nexus.'
+          });
+          setIsModalOpen(false);
+          setFormData({ title: '', content: '', type: 'global' });
+          setEditingId(null);
+        }
+      } else {
+        const payload = { ...formData, authorId: user.id };
+        const success = await addAnnouncement(payload);
+        if (success) {
+          toast.success('Broadcast Transmitted', {
+            description: 'The signal has been amplified across all campus nodes.',
+            icon: <Megaphone className="text-primary" size={16} />
+          });
+          setIsModalOpen(false);
+          setFormData({ title: '', content: '', type: 'global' });
+          setEditingId(null);
+        }
       }
     } catch (err) {
       toast.error('Sync failure', { description: 'Failed to transmit broadcast.' });
@@ -93,14 +109,43 @@ export default function AnnouncementsPage() {
                   {ann.content}
                 </p>
 
-                <div className="pt-4 flex items-center gap-3 border-t border-border/20">
-                  <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
-                    <User size={16} className="text-muted-foreground" />
+                <div className="pt-6 flex items-center justify-between border-t border-border/20">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+                      <User size={16} className="text-muted-foreground" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold tracking-tight">{ann.authorName || 'Authorized Unit'}</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Campus Governance</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-bold tracking-tight">{ann.authorName || 'Authorized Unit'}</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Campus Governance</p>
-                  </div>
+
+                  {user?.role === 'super_admin' && (
+                    <div className="flex items-center gap-2">
+                       <button 
+                        onClick={() => {
+                          setFormData({ title: ann.title, content: ann.content, type: ann.type });
+                          setEditingId(ann.id);
+                          setIsModalOpen(true);
+                        }}
+                        className="p-2.5 rounded-xl bg-muted hover:bg-primary/10 hover:text-primary transition-all"
+                        title="Recalibrate Signal"
+                      >
+                        <X size={16} className="rotate-45" /> {/* Using X as a pencil-like icon if pencil isn't imported, or I can import it */}
+                      </button>
+                      <button 
+                        onClick={() => {
+                          if (confirm('Decommission this broadcast signal?')) {
+                            deleteAnnouncement(ann.id);
+                          }
+                        }}
+                        className="p-2.5 rounded-xl bg-muted hover:bg-rose-500/10 hover:text-rose-500 transition-all"
+                        title="Terminate Signal"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -13,19 +13,29 @@ interface NavbarProps {
 
 export function Navbar({ onMenuClick, title }: NavbarProps) {
   const { user } = useAuth();
-  const { notifications, markNotificationRead, markAllNotificationsRead } = useData();
+  const { notifications, announcements, markNotificationRead, markAllNotificationsRead } = useData();
   const navigate = useNavigate();
   const [notifOpen, setNotifOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const notifRef = useRef<HTMLDivElement>(null);
-  const { setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  // Avoid hydration mismatch
-  useEffect(() => setMounted(true), []);
-
+  
   const userNotifs = notifications.filter((n) => n.userId === user?.id);
   const unreadCount = userNotifs.filter((n) => !n.read).length;
+
+  // Combine real notifications with global announcements for the "Pulse Feed"
+  const pulseFeed = [
+    ...userNotifs.map(n => ({ ...n, feedType: 'notification' })),
+    ...announcements.filter(a => a.type === 'global').slice(0, 5).map(a => ({
+      id: a.id,
+      title: a.title,
+      message: a.content,
+      type: 'info',
+      read: true,
+      createdAt: a.createdAt,
+      link: '/announcements',
+      feedType: 'announcement'
+    }))
+  ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -92,21 +102,6 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
       </div>
 
       <div className="ml-auto flex items-center gap-4">
-        {/* Theme Toggle */}
-        <button
-          onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-          className="w-10 h-10 rounded-xl bg-card border border-border/50 flex items-center justify-center text-foreground/60 hover:text-primary transition-all shadow-sm group"
-        >
-          {mounted && (
-            resolvedTheme === 'dark' ? (
-              <Sun size={18} className="group-hover:rotate-45 transition-transform duration-500" />
-            ) : (
-              <Moon size={18} className="group-hover:-rotate-12 transition-transform duration-500" />
-            )
-          )}
-          {!mounted && <div className="w-[18px] h-[18px]" />}
-        </button>
-
         {/* Notifications */}
         <div className="relative" ref={notifRef}>
           <button
@@ -138,36 +133,43 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
                 )}
               </div>
               <div className="max-h-96 overflow-y-auto custom-scrollbar">
-                {userNotifs.length === 0 ? (
+                {pulseFeed.length === 0 ? (
                   <div className="py-12 text-center text-muted-foreground/40 font-bold uppercase tracking-widest" style={{ fontSize: '10px' }}>
                     Zero Static
                   </div>
                 ) : (
-                  userNotifs.map((notif) => (
+                  pulseFeed.map((item) => (
                     <div
-                      key={notif.id}
+                      key={item.id}
                       onClick={() => {
-                        markNotificationRead(notif.id);
+                        if (item.feedType === 'notification') {
+                          markNotificationRead(item.id);
+                        }
                         setNotifOpen(false);
-                        if (notif.link) navigate(notif.link);
+                        if (item.link) navigate(item.link);
                       }}
                       className={`px-5 py-4 border-b border-border/20 cursor-pointer hover:bg-primary/5 transition-colors flex gap-4 ${
-                        !notif.read ? 'bg-primary/[0.02]' : ''
+                        item.feedType === 'notification' && !item.read ? 'bg-primary/[0.02]' : ''
                       }`}
                     >
-                      <div className={`w-1.5 h-1.5 rounded-full mt-2.5 flex-shrink-0 ${notifTypeClass[notif.type as keyof typeof notifTypeClass]}`} />
+                      <div className={`w-1.5 h-1.5 rounded-full mt-2.5 flex-shrink-0 ${item.feedType === 'announcement' ? 'bg-primary/20' : notifTypeClass[item.type as keyof typeof notifTypeClass]}`} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-foreground font-bold tracking-tight mb-0.5" style={{ fontSize: '13px' }}>
-                          {notif.title}
-                        </p>
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <p className="text-foreground font-bold tracking-tight" style={{ fontSize: '13px' }}>
+                            {item.title}
+                          </p>
+                          {item.feedType === 'announcement' && (
+                            <span className="text-[8px] font-black uppercase tracking-widest bg-primary/10 text-primary px-1.5 py-0.5 rounded">Broadcast</span>
+                          )}
+                        </div>
                         <p className="text-muted-foreground line-clamp-2 leading-relaxed" style={{ fontSize: '12px' }}>
-                          {notif.message}
+                          {item.message}
                         </p>
                         <p className="text-muted-foreground/30 mt-2 font-black uppercase tracking-widest" style={{ fontSize: '9px' }}>
-                          {format(new Date(notif.createdAt), 'MMM d • HH:mm')}
+                          {format(new Date(item.createdAt), 'MMM d • HH:mm')}
                         </p>
                       </div>
-                      {notif.read && <Check size={14} className="text-muted-foreground/20 flex-shrink-0 mt-1" />}
+                      {item.feedType === 'notification' && item.read && <Check size={14} className="text-muted-foreground/20 flex-shrink-0 mt-1" />}
                     </div>
                   ))
                 )}
