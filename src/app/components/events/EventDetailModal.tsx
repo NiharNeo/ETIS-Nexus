@@ -62,18 +62,19 @@ export function EventDetailModal({ event, club, open, onClose }: EventDetailModa
   const handleRegister = async () => {
     if (!user || !event) return;
     setIsRegistering(true);
-    const success = await registerForEvent(event.id);
-    if (success) {
+    const registration = await registerForEvent(event.id);
+    if (registration) {
+      setUserRegistration(registration);
+      setShowTicket(true);
       toast.success('Institutional Access Granted', {
-        description: 'Your registration is confirmed. Unique QR signal generated.',
-        icon: <ShieldCheck className="text-emerald-500" size={16} />
+        description: 'Your registration is confirmed. QR ticket generated.',
+        icon: <ShieldCheck className="text-emerald-500" size={16} />,
       });
-      
-      // Instant refresh of registrations to get the new QR signal
-      await getRegistrations(event.id);
-      fetchRegistration();
     } else {
       setIsRegistering(false);
+      toast.error('Registration Failed', {
+        description: 'Could not complete registration. Please try again.',
+      });
     }
   };
 

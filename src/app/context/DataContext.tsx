@@ -58,7 +58,7 @@ interface DataContextValue {
   addHackathon: (data: any) => Promise<boolean>;
   formTeam: (hackathonId: string) => void;
   // Registration actions
-  registerForEvent: (eventId: string) => Promise<boolean>;
+  registerForEvent: (eventId: string) => Promise<EventRegistration | null>;
   getRegistrations: (eventId?: string) => Promise<EventRegistration[]>;
   checkInStudent: (regId: string, eventId: string) => Promise<boolean>;
   validateAndCheckIn: (qrPayload: string, eventId: string) => Promise<{ success: boolean; message: string; registration?: EventRegistration }>;
@@ -658,10 +658,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     });
   }, [hackathons, user]);
 
-  const registerForEvent = useCallback(async (eventId: string): Promise<boolean> => {
-    if (!user) return false;
+  const registerForEvent = useCallback(async (eventId: string): Promise<EventRegistration | null> => {
+    if (!user) return null;
     try {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('registrations')
         .insert({
           event_id: eventId,
@@ -671,14 +671,34 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         .select(`*, profiles(name, email, department)`)
         .single();
       
-      if (error) throw error;
-      if (data) {
-        setRegistrations(prev => [...prev, mapRegistration(data)]);
+      if (error) {
+        // Handle duplicate registration — the user is already registered, fetch the existing record
+        if (error.code === '23505') {
+          console.info('User already registered — fetching existing registration');
+          const { data: existing, error: fetchErr } = await supabase
+            .from('registrations')
+            .select(`*, profiles(name, email, department)`)
+            .eq('event_id', eventId)
+            .eq('user_id', user.id)
+            .single();
+          if (fetchErr || !existing) return null;
+          const mapped = mapRegistration(existing);
+          setRegistrations(prev => {
+            const already = prev.find(r => r.id === mapped.id);
+            return already ? prev.map(r => r.id === mapped.id ? mapped : r) : [...prev, mapped];
+          });
+          return mapped;
+        }
+        throw error;
       }
-      return true;
+
+      if (!data) return null;
+      const mapped = mapRegistration(data);
+      setRegistrations(prev => [...prev, mapped]);
+      return mapped;
     } catch (err) {
       console.error('Failed to register for event:', err);
-      return false;
+      return null;
     }
   }, [user, mapRegistration]);
 
