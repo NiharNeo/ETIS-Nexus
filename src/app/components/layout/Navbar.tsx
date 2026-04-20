@@ -24,7 +24,7 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
 
   // Combine real notifications with global announcements for the "Pulse Feed"
   const pulseFeed = [
-    ...userNotifs.map(n => ({ ...n, feedType: 'notification' })),
+    ...userNotifs.map(n => ({ ...n, feedType: 'notification', avatar: undefined })),
     ...announcements.filter(a => a.type === 'global').slice(0, 5).map(a => ({
       id: a.id,
       title: a.title,
@@ -33,7 +33,8 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
       read: true,
       createdAt: a.createdAt,
       link: '/announcements',
-      feedType: 'announcement'
+      feedType: 'announcement',
+      avatar: a.authorAvatar
     }))
   ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
@@ -152,7 +153,13 @@ export function Navbar({ onMenuClick, title }: NavbarProps) {
                         item.feedType === 'notification' && !item.read ? 'bg-primary/[0.02]' : ''
                       }`}
                     >
-                      <div className={`w-1.5 h-1.5 rounded-full mt-2.5 flex-shrink-0 ${item.feedType === 'announcement' ? 'bg-primary/20' : notifTypeClass[item.type as keyof typeof notifTypeClass]}`} />
+                      {item.feedType === 'announcement' && item.avatar ? (
+                        <div className="w-8 h-8 rounded-xl overflow-hidden flex-shrink-0 mt-1 border border-primary/20 shadow-lg">
+                          <img src={item.avatar} alt={item.title} className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className={`w-1.5 h-1.5 rounded-full mt-2.5 flex-shrink-0 ${item.feedType === 'announcement' ? 'bg-primary/20' : notifTypeClass[item.type as keyof typeof notifTypeClass]}`} />
+                      )}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
                           <p className="text-foreground font-bold tracking-tight" style={{ fontSize: '13px' }}>

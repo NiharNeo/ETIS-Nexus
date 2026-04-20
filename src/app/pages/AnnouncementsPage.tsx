@@ -71,7 +71,11 @@ export default function AnnouncementsPage() {
 
         {user?.role === 'super_admin' && (
           <button 
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => {
+              setEditingId(null);
+              setFormData({ title: '', content: '', type: 'global' });
+              setIsModalOpen(true);
+            }}
             className="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-primary text-white font-black hover:opacity-90 transition-all shadow-xl shadow-primary/20 scale-100 hover:scale-105 active:scale-95"
           >
             <Plus size={20} />
@@ -110,28 +114,39 @@ export default function AnnouncementsPage() {
                 </p>
 
                 <div className="pt-6 flex items-center justify-between border-t border-border/20">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
-                      <User size={16} className="text-muted-foreground" />
+                  <div className="flex items-center gap-4">
+                    <div className="relative group">
+                      <div className="absolute -inset-1.5 bg-gradient-to-r from-primary/30 to-blue-500/30 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500" />
+                      <div className="relative w-12 h-12 rounded-2xl overflow-hidden bg-muted flex items-center justify-center border border-border/20 shadow-2xl ring-2 ring-white/5">
+                        {ann.authorAvatar ? (
+                          <img 
+                            src={ann.authorAvatar} 
+                            alt={ann.authorName || 'Author'} 
+                            className="w-full h-full object-cover grayscale-[0.5] group-hover:grayscale-0 transition-all duration-500 scale-100 group-hover:scale-110"
+                          />
+                        ) : (
+                          <User size={20} className="text-muted-foreground/60" />
+                        )}
+                      </div>
                     </div>
                     <div>
-                      <p className="text-sm font-bold tracking-tight">{ann.authorName || 'Authorized Unit'}</p>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Campus Governance</p>
+                      <p className="text-sm font-black tracking-tight text-foreground">{ann.authorName || 'Nexus Sentinel'}</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">System Administrator</p>
                     </div>
                   </div>
 
                   {user?.role === 'super_admin' && (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                        <button 
                         onClick={() => {
                           setFormData({ title: ann.title, content: ann.content, type: ann.type });
                           setEditingId(ann.id);
                           setIsModalOpen(true);
                         }}
-                        className="p-2.5 rounded-xl bg-muted hover:bg-primary/10 hover:text-primary transition-all"
+                        className="p-3 rounded-2xl bg-muted/50 border border-border/10 hover:border-primary/30 hover:bg-primary/10 hover:text-primary transition-all shadow-sm group"
                         title="Recalibrate Signal"
                       >
-                        <X size={16} className="rotate-45" /> {/* Using X as a pencil-like icon if pencil isn't imported, or I can import it */}
+                        <Send size={16} className="group-hover:rotate-12 transition-transform" />
                       </button>
                       <button 
                         onClick={() => {
@@ -139,10 +154,10 @@ export default function AnnouncementsPage() {
                             deleteAnnouncement(ann.id);
                           }
                         }}
-                        className="p-2.5 rounded-xl bg-muted hover:bg-rose-500/10 hover:text-rose-500 transition-all"
+                        className="p-3 rounded-2xl bg-muted/50 border border-border/10 hover:border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-500 transition-all shadow-sm group"
                         title="Terminate Signal"
                       >
-                        <X size={16} />
+                        <X size={16} className="group-hover:rotate-12 transition-transform" />
                       </button>
                     </div>
                   )}

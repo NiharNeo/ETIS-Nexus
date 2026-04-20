@@ -19,7 +19,6 @@ import ProjectMemoryWallPage from './pages/ProjectMemoryWallPage';
 import KnowledgeBasePage from './pages/KnowledgeBasePage';
 import SettingsPage from './pages/SettingsPage';
 import AnnouncementsPage from './pages/AnnouncementsPage';
-import MembershipRequestsPage from './pages/MembershipRequestsPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 export const router = createBrowserRouter([
@@ -91,10 +90,6 @@ export const router = createBrowserRouter([
       {
         path: '/rep/events/new',
         Component: CreateEventPage,
-      },
-      {
-        path: '/rep/requests',
-        Component: MembershipRequestsPage,
       },
       // Admin Routes
       {

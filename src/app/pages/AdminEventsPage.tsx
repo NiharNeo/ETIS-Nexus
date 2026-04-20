@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { StatusBadge, ModeBadge } from '../components/common/StatusBadge';
 import { EventDetailModal } from '../components/events/EventDetailModal';
 import { Modal } from '../components/common/Modal';
+import { EventForm } from '../components/events/EventForm';
 import type { ClubEvent } from '../types';
 import {
   CheckCircle2,
@@ -24,7 +25,8 @@ import {
   Archive,
   MoreVertical,
   ShieldAlert,
-  MapPin
+  MapPin,
+  Edit3
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -39,6 +41,9 @@ export default function AdminEventsPage() {
   const [search, setSearch] = useState('');
   const [filterClub, setFilterClub] = useState('');
   const [selectedEvent, setSelectedEvent] = useState<ClubEvent | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<ClubEvent | null>(null);
+  const { updateEvent } = useData();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newEventData, setNewEventData] = useState({
     title: '',
@@ -147,6 +152,23 @@ export default function AdminEventsPage() {
       await deleteEvent(event.id);
       toast.success('Event Deleted', { description: `"${event.title}" has been removed.` });
     }
+  };
+
+  const handleUpdate = async (data: any) => {
+    if (!editingEvent) return;
+    
+    // Process tags
+    const tagsArray = typeof data.tags === 'string'
+      ? data.tags.split(',').map((t: string) => t.trim()).filter(Boolean)
+      : data.tags;
+
+    await updateEvent(editingEvent.id, { ...data, tags: tagsArray });
+    toast.success('Protocol Recalibrated', {
+      description: `"${data.title}" has been synchronized with the nexus.`,
+      icon: <CheckCircle2 className="text-emerald-500" size={16} />
+    });
+    setIsEditModalOpen(false);
+    setEditingEvent(null);
   };
 
   const TABS: { id: TabFilter; label: string; icon: React.ReactNode }[] = [
@@ -323,6 +345,17 @@ export default function AdminEventsPage() {
                           >
                             <Eye size={18} />
                           </button>
+
+                          <button
+                            onClick={() => {
+                              setEditingEvent(event);
+                              setIsEditModalOpen(true);
+                            }}
+                            className="w-10 h-10 flex items-center justify-center rounded-xl bg-zinc-100 text-black/40 hover:bg-primary hover:text-white transition-all border border-black/5"
+                            title="Recalibrate"
+                          >
+                            <Edit3 size={18} />
+                          </button>
                           
                           {(event.status === 'pending' || event.status === 'rejected') && (
                             <button
@@ -455,6 +488,23 @@ export default function AdminEventsPage() {
               Confirm Creation
             </button>
           </div>
+        </div>
+      </Modal>
+
+      {/* Edit Event Modal */}
+      <Modal
+        open={isEditModalOpen}
+        onClose={() => { setIsEditModalOpen(false); setEditingEvent(null); }}
+        title="Recalibrate Institutional Event"
+      >
+        <div className="p-8">
+           {editingEvent && (
+             <EventForm 
+               initialData={editingEvent}
+               onSubmit={handleUpdate}
+               onSaveDraft={handleUpdate} // For admin, saving as draft also updates the event
+             />
+           )}
         </div>
       </Modal>
 

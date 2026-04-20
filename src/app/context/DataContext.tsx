@@ -15,9 +15,7 @@ import type {
   DepartmentContribution, 
   ProjectMemory, 
   WikiArticle,
-  Announcement,
-  MembershipRequest,
-  MembershipStatus
+  Announcement
 } from '../types';
 
 // Alias to avoid conflict with browser Notification
@@ -37,7 +35,6 @@ interface DataContextValue {
   notifications: AppNotification[];
   wikiArticles: WikiArticle[];
   announcements: Announcement[];
-  membershipRequests: MembershipRequest[];
   registrations: EventRegistration[];
   // Club actions
   addClub: (data: ClubFormData) => Promise<Club | null>;
@@ -77,9 +74,6 @@ interface DataContextValue {
   addAnnouncement: (data: Omit<Announcement, 'id' | 'createdAt'>) => Promise<boolean>;
   updateAnnouncement: (id: string, data: Partial<Announcement>) => Promise<boolean>;
   deleteAnnouncement: (id: string) => Promise<void>;
-  // Membership Actions
-  submitMembershipRequest: (clubId: string, message: string) => Promise<boolean>;
-  resolveMembershipRequest: (requestId: string, approve: boolean) => Promise<boolean>;
 }
 
 const DataContext = createContext<DataContextValue | null>(null);
@@ -96,7 +90,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [notifications, setAppNotifications] = useState<AppNotification[]>([]);
   const [wikiArticles, setWikiArticles] = useState<WikiArticle[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [membershipRequests, setMembershipRequests] = useState<MembershipRequest[]>([]);
   const [registrations, setRegistrations] = useState<EventRegistration[]>([]);
 
   const mapClub = useCallback((c: any): Club => ({
@@ -238,19 +231,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     authorId: a.author_id,
     createdAt: a.created_at,
     expiresAt: a.expires_at,
-    authorName: a.profiles?.name
-  }), []);
-
-  const mapMembershipRequest = useCallback((r: any): MembershipRequest => ({
-    id: r.id,
-    clubId: r.club_id,
-    userId: r.user_id,
-    message: r.message,
-    status: r.status as MembershipStatus,
-    createdAt: r.created_at,
-    resolvedAt: r.resolved_at,
-    userName: r.profiles?.name,
-    clubName: r.clubs?.name
+    authorName: a.profiles?.name,
+    authorAvatar: a.profiles?.avatar
   }), []);
 
   const mapContribution = useCallback((c: any): DepartmentContribution => ({
@@ -286,7 +268,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           supabase.from('project_memories').select('*'),
           supabase.from('wiki_articles').select('*'),
           supabase.from('contributions').select('*'),
-          supabase.from('announcements').select('*, profiles:author_id(name)').order('created_at', { ascending: false })
+          supabase.from('announcements').select('*, profiles:author_id(name, avatar)').order('created_at', { ascending: false })
         ]);
 
         if (announcementsRes.data) setAnnouncements(announcementsRes.data.map(mapAnnouncement));
@@ -308,16 +290,12 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         if (contribRes.data) setContributions(contribRes.data.map(mapContribution));
 
         if (user) {
-          const [notifsRes, requestsRes, registrationsRes] = await Promise.all([
+          const [notifsRes, registrationsRes] = await Promise.all([
             supabase.from('notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
-            user.role !== 'student' 
-              ? supabase.from('membership_requests').select('*, profiles:user_id(name), clubs:club_id(name)').order('created_at', { ascending: false })
-              : Promise.resolve({ data: [] }),
             supabase.from('registrations').select(`*, profiles(name, email, department)`).eq('user_id', user.id)
           ]);
 
           if (notifsRes.data) setAppNotifications(notifsRes.data.map(mapNotification));
-          if (requestsRes.data) setMembershipRequests(requestsRes.data.map(mapMembershipRequest));
           if (registrationsRes.data) setRegistrations(registrationsRes.data.map(mapRegistration));
         }
       } catch (error) {
@@ -362,7 +340,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         supabase.removeChannel(channel);
       };
     }
-  }, [user, mapClub, mapEvent, mapHackathon, mapProject, mapMemory, mapWikiArticle, mapContribution, mapAnnouncement, mapNotification, mapMembershipRequest, mapRegistration]);
+  }, [user, mapClub, mapEvent, mapHackathon, mapProject, mapMemory, mapWikiArticle, mapContribution, mapAnnouncement, mapNotification, mapRegistration]);
 
   const addClub = useCallback(async (data: ClubFormData): Promise<Club | null> => {
     try {
@@ -491,11 +469,26 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const updateEvent = useCallback(async (id: string, updates: Partial<ClubEvent>) => {
     try {
-      const dbUpdates: any = {};
+      const dbUpdates: any = {
+        updated_at: new Date().toISOString()
+      };
+      
       if (updates.title) dbUpdates.title = updates.title;
-      if (updates.description) dbUpdates.description = updates.description;
+      if (updates.description) {
+        dbUpdates.description = updates.description;
+        dbUpdates.short_description = updates.description.substring(0, 100);
+      }
+      if (updates.shortDescription) dbUpdates.short_description = updates.shortDescription;
       if (updates.date) dbUpdates.event_date = updates.date;
+      if (updates.startTime) dbUpdates.start_time = updates.startTime;
+      if (updates.endTime) dbUpdates.end_time = updates.endTime;
+      if (updates.venue) dbUpdates.venue = updates.venue;
+      if (updates.mode) dbUpdates.mode = updates.mode;
       if (updates.status) dbUpdates.status = updates.status;
+      if (updates.coverImage) dbUpdates.cover_image = updates.coverImage;
+      if (updates.registrationLink) dbUpdates.registration_link = updates.registrationLink;
+      if (updates.tags) dbUpdates.tags = updates.tags;
+      if (updates.capacity !== undefined) dbUpdates.capacity = updates.capacity;
 
       const { data: updated, error } = await supabase
         .from('events')
@@ -932,9 +925,17 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data: res, error } = await supabase
         .from('announcements')
-        .insert({ ...data, author_id: user?.id })
-        .select('*, profiles:author_id(name)')
+        .insert({
+          title: data.title,
+          content: data.content,
+          type: data.type,
+          club_id: data.clubId || null,
+          author_id: user?.id,
+          expires_at: data.expiresAt || null
+        })
+        .select('*, profiles:author_id(name, avatar)')
         .single();
+
       if (error) throw error;
       setAnnouncements(prev => [mapAnnouncement(res), ...prev]);
       return true;
@@ -944,76 +945,22 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user, mapAnnouncement]);
 
-  const submitMembershipRequest = useCallback(async (clubId: string, message: string): Promise<boolean> => {
-    if (!user) return false;
-    try {
-      const { error } = await supabase
-        .from('membership_requests')
-        .insert({ club_id: clubId, user_id: user.id, message });
-      if (error) throw error;
-      return true;
-    } catch (err) {
-      console.error('Failed to submit membership request:', err);
-      return false;
-    }
-  }, [user]);
-
-
-  const resolveMembershipRequest = useCallback(async (requestId: string, approve: boolean): Promise<boolean> => {
-    try {
-      const { data: request } = await supabase.from('membership_requests').select('*, clubs(name)').eq('id', requestId).single();
-      if (approve && request) {
-        const { data: profile } = await supabase.from('profiles').select('name, email').eq('id', request.user_id).single();
-        await supabase.from('club_members').insert({
-          club_id: request.club_id,
-          user_id: request.user_id,
-          name: profile?.name,
-          email: profile?.email
-        });
-      }
-      await supabase.from('membership_requests').update({ 
-        status: approve ? 'approved' : 'rejected',
-        resolved_at: new Date().toISOString()
-      }).eq('id', requestId);
-
-      if (request) {
-        const clubName = request.clubs?.name || 'the club';
-        await supabase.from('notifications').insert({
-          user_id: request.user_id,
-          title: approve ? 'Membership Authorized' : 'Membership Rejected',
-          message: approve 
-            ? `Your request to join ${clubName} has been authorized. Welcome to the sector.`
-            : `Your request to join ${clubName} was not authorized at this time.`,
-          type: approve ? 'success' : 'error',
-          link: `/clubs/${request.club_id}`
-        });
-      }
-
-      if (approve && request) {
-        // Sync member count after approval
-        const { count: memberCount } = await supabase.from('club_members').select('*', { count: 'exact', head: true }).eq('club_id', request.club_id);
-        if (memberCount !== null) {
-          await supabase.from('clubs').update({ member_count: memberCount }).eq('id', request.club_id);
-          setClubs(prev => prev.map(c => c.id === request.club_id ? { ...c, memberCount: memberCount } : c));
-        }
-      }
-
-      setMembershipRequests(prev => prev.filter(r => r.id !== requestId));
-      return true;
-    } catch (err) {
-      console.error('Failed to resolve membership request:', err);
-      return false;
-    }
-  }, []);
-
   const updateAnnouncement = useCallback(async (id: string, data: Partial<Announcement>) => {
     try {
+      const dbData: any = {};
+      if (data.title !== undefined) dbData.title = data.title;
+      if (data.content !== undefined) dbData.content = data.content;
+      if (data.type !== undefined) dbData.type = data.type;
+      if (data.clubId !== undefined) dbData.club_id = data.clubId || null;
+      if (data.expiresAt !== undefined) dbData.expires_at = data.expiresAt || null;
+
       const { data: updated, error } = await supabase
         .from('announcements')
-        .update(data)
+        .update(dbData)
         .eq('id', id)
-        .select()
+        .select('*, profiles:author_id(name, avatar)')
         .single();
+
       if (error) throw error;
       setAnnouncements(prev => prev.map(a => a.id === id ? mapAnnouncement(updated) : a));
       return true;
@@ -1049,7 +996,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         notifications,
         wikiArticles,
         announcements,
-        membershipRequests,
         registrations,
         addClub,
         updateClub,
@@ -1080,9 +1026,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         addNotification,
         addAnnouncement,
         updateAnnouncement,
-        deleteAnnouncement,
-        submitMembershipRequest,
-        resolveMembershipRequest
+        deleteAnnouncement
       }}
     >
       {children}

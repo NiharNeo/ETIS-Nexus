@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -33,37 +33,21 @@ import type { ClubFormData } from '../types';
 export default function ClubDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { clubs, events, updateClub } = useData();
+  const { 
+    clubs, 
+    events, 
+    updateClub, 
+    getUsers 
+  } = useData();
   const { user } = useAuth();
   const [selectedEvent, setSelectedEvent] = useState<ClubEvent | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<'events' | 'about'>('events');
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isJoining, setIsJoining] = useState(false);
-  const { membershipRequests, submitMembershipRequest } = useData();
 
   const club = clubs.find((c) => c.id === id);
 
-  const handleJoinRequest = async () => {
-    if (!user || !club) return;
-    setIsJoining(true);
-    try {
-      const success = await submitMembershipRequest(club.id, `I would like to join ${club.name} as a student representative.`);
-      if (success) {
-        toast.success('Join Request Transmitted', {
-          description: 'Your request has been queued for sectoral approval.',
-          icon: <Activity className="text-primary" size={16} />
-        });
-      }
-    } catch (err) {
-      toast.error('Transmission Error', {
-        description: 'Failed to send join request. Please check your connection.',
-      });
-    } finally {
-      setIsJoining(false);
-    }
-  };
 
   const handleUpdate = async (data: ClubFormData) => {
     if (!club || !user) return;
@@ -108,13 +92,22 @@ export default function ClubDetailPage() {
   }
 
   const clubColor = CLUB_COLORS[club.id] ?? '#6366f1';
-  const clubEvents = events.filter((e) => {
+  const clubEvents = events.filter((e: ClubEvent) => {
     if (e.clubId !== club.id) return false;
     if (user?.role === 'super_admin') return true;
     if (user?.role === 'club_rep' && user.clubIds?.includes(club.id)) return true;
     return e.status === 'approved';
   });
-  const reps: any[] = [];
+  const [reps, setReps] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (club?.repIds?.length) {
+      getUsers().then(allUsers => {
+        const clubReps = allUsers.filter(u => club.repIds.includes(u.id));
+        setReps(clubReps);
+      });
+    }
+  }, [club?.repIds, getUsers]);
 
   const tabs = [
     { id: 'events', label: `Convergent Events (${clubEvents.length})`, icon: <Zap size={14} /> },
@@ -184,25 +177,6 @@ export default function ClubDetailPage() {
               >
                 <SettingsIcon size={14} className="group-hover:rotate-90 transition-transform" />
                 <span className="text-[9px] font-black uppercase tracking-[0.2em] whitespace-nowrap">Edit Profile</span>
-              </button>
-            )}
-
-            {user?.role === 'student' && (
-              <button
-                onClick={handleJoinRequest}
-                disabled={isJoining || membershipRequests.some(r => r.clubId === club.id && r.userId === user.id)}
-                className={`group flex items-center gap-3 px-8 py-3 rounded-2xl font-black transition-all shadow-xl ${
-                  membershipRequests.some(r => r.clubId === club.id && r.userId === user.id)
-                    ? 'bg-muted text-muted-foreground/60 cursor-not-allowed shadow-none border border-border/10'
-                    : 'bg-primary text-white hover:scale-105 shadow-primary/20'
-                }`}
-              >
-                <Users size={18} className={isJoining ? 'animate-spin' : ''} />
-                <span className="text-[10px] uppercase tracking-[0.2em]">
-                  {membershipRequests.some(r => r.clubId === club.id && r.userId === user.id)
-                    ? 'Request Pending'
-                    : 'Request to Join Sector'}
-                </span>
               </button>
             )}
           </div>

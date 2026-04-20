@@ -194,23 +194,9 @@ export interface Announcement {
   clubId?: string;
   authorId: string;
   authorName?: string;
+  authorAvatar?: string;
   createdAt: string;
   expiresAt?: string;
-}
-
-// ─── Membership Request Types ─────────────────────────────────────────────
-export type MembershipStatus = 'pending' | 'approved' | 'rejected';
-
-export interface MembershipRequest {
-  id: string;
-  clubId: string;
-  userId: string;
-  message?: string;
-  status: MembershipStatus;
-  createdAt: string;
-  resolvedAt?: string;
-  userName?: string;
-  clubName?: string;
 }
 
 // ─── Analytics Types ─────────────────────────────────────────────────────────

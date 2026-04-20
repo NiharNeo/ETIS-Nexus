@@ -102,12 +102,6 @@ const NAV_ITEMS: NavItem[] = [
     roles: ['super_admin'],
   },
   {
-    label: 'Join Requests',
-    icon: <Users size={18} />,
-    to: '/rep/requests',
-    roles: ['super_admin', 'club_rep'],
-  },
-  {
     label: 'Account Settings',
     icon: <Settings size={18} />,
     to: '/settings',
