@@ -75,9 +75,6 @@
               animate={{ opacity: 1, y: 0 }}
               className="flex items-center gap-4"
             >
-              <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shadow-xl shadow-primary/20">
-                <GraduationCap size={30} className="text-white" />
-              </div>
               <div>
                 <p className="text-3xl font-black tracking-tighter leading-none mb-1">ETIS <span className="text-primary italic">Nexus</span>.</p>
                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground/20">Institutional Governance</p>
@@ -125,9 +122,6 @@
           >
             {/* Mobile Branding */}
             <div className="flex items-center gap-4 mb-12 lg:hidden">
-              <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
-                <GraduationCap size={24} className="text-white" />
-              </div>
               <p className="text-2xl font-black tracking-tighter text-foreground">ETIS <span className="text-primary italic">Nexus</span>.</p>
             </div>
 

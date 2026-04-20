@@ -18,6 +18,9 @@ import {
   Sparkles
 } from 'lucide-react';
 import { Modal } from '../components/common/Modal';
+import { ClubLogo } from '../components/clubs/ClubLogo';
+import { ImageUploader } from '../components/common/ImageUploader';
+import { uploadFile } from '../lib/supabase';
 import { BentoGrid, BentoCard } from '../components/ui/bento-grid';
 import { EventDetailModal } from '../components/events/EventDetailModal';
 import { Skeleton } from '../components/ui/skeleton';
@@ -52,20 +55,28 @@ export default function DashboardPage() {
     department: '',
     description: '',
     shortDescription: '',
-    tags: ''
+    tags: '',
+    logo: ''
   });
+  const [logoFile, setLogoFile] = useState<File | null>(null);
 
   const { addClub } = useData();
 
   const handleAddClub = async () => {
     console.log('Initiating club creation flow...');
-    if (!newClubData.name || !newClubData.department) {
-      toast.error('Missing Information', { description: 'Please provide name and department.' });
+
+    if (!newClubData.name || !newClubData.department || !logoFile) {
+      toast.error('Missing Information', { description: 'Please provide name, department, and logo.' });
       return;
     }
     
     try {
-      const result = await addClub(newClubData);
+      let logoUrl = '';
+      if (logoFile) {
+        logoUrl = await uploadFile('logos', `clubs/logo-${Date.now()}-${logoFile.name}`, logoFile);
+      }
+      
+      const result = await addClub({ ...newClubData, logo: logoUrl });
       if (result) {
         toast.success('Club Created', { 
           description: `${newClubData.name} has been added successfully.`,
@@ -298,9 +309,7 @@ export default function DashboardPage() {
                       className="p-6 rounded-[2rem] bg-white border border-black/5 hover:border-black transition-all cursor-pointer group shadow-sm"
                     >
                       <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center font-black text-sm">
-                          {club?.logo || '🏛'}
-                        </div>
+                        <ClubLogo logo={club?.logo} name={club?.name || ''} size="sm" />
                         <span className="text-[10px] font-black uppercase tracking-widest text-black/40">{club?.name}</span>
                       </div>
                       <h4 className="text-lg font-black tracking-tight text-black mb-2 leading-none">{event.title}</h4>
@@ -456,6 +465,14 @@ export default function DashboardPage() {
               className="w-full px-6 py-4 rounded-2xl bg-zinc-50 border border-black/5 focus:outline-none focus:ring-4 focus:ring-black/5 text-black font-bold"
               value={newClubData.tags}
               onChange={(e) => setNewClubData({...newClubData, tags: e.target.value})}
+            />
+          </div>
+          <div className="space-y-4">
+            <ImageUploader 
+              label="Institutional Logo (Required)"
+              aspectRatio="square"
+              onImageSelected={() => {}} 
+              onFileSelected={(file) => setLogoFile(file)}
             />
           </div>
           <div className="flex gap-4 pt-4">

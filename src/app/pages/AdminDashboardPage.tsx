@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { StatCard } from '../components/common/StatCard';
 import { StatusBadge } from '../components/common/StatusBadge';
+import { ClubLogo } from '../components/clubs/ClubLogo';
 import {
   BarChart,
   Bar,
@@ -354,10 +355,7 @@ export default function AdminDashboardPage() {
                 <div className="w-12 h-12 flex-shrink-0 flex items-center justify-center text-2xl font-black" style={{ color: i < 3 ? '#f59e0b' : 'rgba(255,255,255,0.1)' }}>
                   #{i + 1}
                 </div>
-                <div className="w-14 h-14 rounded-2xl bg-card flex items-center justify-center text-3xl shadow-3xl border border-border/10 relative overflow-hidden">
-                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-                   <span className="relative z-10">{club.logo}</span>
-                </div>
+                <ClubLogo logo={club.logo} name={club.name} size="md" />
                 <div className="flex-1 min-w-0">
                   <p className="text-lg font-black text-foreground truncate tracking-tighter leading-none mb-1 group-hover:text-primary transition-colors">
                     {club.name}
@@ -424,9 +422,7 @@ export default function AdminDashboardPage() {
                       key={event.id}
                       className="flex items-start gap-6 p-6 bg-sidebar/50 rounded-3xl border border-border/5 hover:border-amber-500/20 group transition-all"
                     >
-                      <div className="w-14 h-14 rounded-2xl bg-card flex items-center justify-center text-3xl shadow-2xl shrink-0 group-hover:scale-110 transition-transform">
-                         {club?.logo}
-                      </div>
+                      <ClubLogo logo={club?.logo} name={club?.name || ''} size="md" />
                       <div className="flex-1 min-w-0 pt-1">
                         <p className="text-lg font-black text-foreground truncate tracking-tighter leading-none mb-2">
                           {event.title}

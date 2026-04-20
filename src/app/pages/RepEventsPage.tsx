@@ -31,7 +31,8 @@ import {
   MoreVertical,
   CheckCircle2,
   MapPin,
-  ShieldAlert
+  ShieldAlert,
+  UserCheck
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -346,7 +347,7 @@ export default function RepEventsPage() {
                     {event.status === 'approved' && (
                       <>
                         <button
-                          onClick={() => window.location.href = `/events/${event.id}/manage`}
+                          onClick={() => navigate(`/attendance?eventId=${event.id}`)}
                           className="w-14 h-14 flex items-center justify-center rounded-2xl bg-primary/10 hover:bg-primary transition-all border border-primary/20 text-primary hover:text-white shadow-[0_10px_20px_rgba(37,99,235,0.2)]"
                           title="Operations Terminal"
                         >
@@ -355,10 +356,10 @@ export default function RepEventsPage() {
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
-                          onClick={() => setScannerEvent(event)}
+                          onClick={() => navigate(`/attendance?eventId=${event.id}`)}
                           className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-emerald-500 text-white font-black uppercase text-[10px] tracking-widest shadow-xl shadow-emerald-500/20"
                         >
-                          <Scan size={18} /> Tactical Check-In
+                          <UserCheck size={18} /> Attendance Hub
                         </motion.button>
                       </>
                     )}

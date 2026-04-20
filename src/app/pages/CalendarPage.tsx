@@ -6,6 +6,7 @@ import { EventDetailModal } from '../components/events/EventDetailModal';
 import type { CalendarEvent, ClubEvent } from '../types';
 import { CLUB_COLORS } from '../lib/constants';
 import { Filter, X, Calendar as CalendarIcon, Sparkles, LayoutGrid, Activity } from 'lucide-react';
+import { ClubLogo } from '../components/clubs/ClubLogo';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function CalendarPage() {
@@ -197,10 +198,11 @@ export default function CalendarPage() {
               className={`w-2 h-2 rounded-full flex-shrink-0 ${filterClub === club.id ? 'bg-white shadow-[0_0_8px_rgba(255,255,255,0.6)] animate-pulse' : ''}`}
               style={filterClub !== club.id ? { backgroundColor: CLUB_COLORS[club.id] } : {}}
             />
+            <ClubLogo logo={club.logo} name={club.name} size="sm" className="bg-transparent border-none shadow-none p-0" />
             <span
               className={`text-[10px] font-black uppercase tracking-widest ${filterClub === club.id ? 'text-white' : 'text-foreground'}`}
             >
-              {club.logo} {club.name}
+              {club.name}
             </span>
           </motion.button>
         ))}

@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router';
 import { StatusBadge, ModeBadge } from '../components/common/StatusBadge';
 import { EventDetailModal } from '../components/events/EventDetailModal';
 import { Modal } from '../components/common/Modal';
@@ -26,7 +27,8 @@ import {
   MoreVertical,
   ShieldAlert,
   MapPin,
-  Edit3
+  Edit3,
+  UserCheck
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -36,14 +38,14 @@ type TabFilter = 'all' | 'pending' | 'approved' | 'rejected' | 'draft';
 
 export default function AdminEventsPage() {
   const { user } = useAuth();
-  const { events, clubs, approveEvent, rejectEvent, deleteEvent, addEvent } = useData();
+  const { events, clubs, approveEvent, rejectEvent, deleteEvent, addEvent, updateEvent } = useData();
   const [tab, setTab] = useState<TabFilter>('pending');
   const [search, setSearch] = useState('');
   const [filterClub, setFilterClub] = useState('');
   const [selectedEvent, setSelectedEvent] = useState<ClubEvent | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<ClubEvent | null>(null);
-  const { updateEvent } = useData();
+  const navigate = useNavigate();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newEventData, setNewEventData] = useState({
     title: '',
@@ -70,7 +72,7 @@ export default function AdminEventsPage() {
       ...newEventData,
       status: 'pending',
       createdBy: 'u1',
-      tags: newEventData.tags.split(',').map(t => t.trim()).filter(Boolean)
+      tags: newEventData.tags.split(',').map((t: string) => t.trim()).filter(Boolean)
     };
 
     if (!user) return;
@@ -264,7 +266,7 @@ export default function AdminEventsPage() {
             className="px-6 py-4 rounded-2xl bg-zinc-50 border border-black/5 focus:outline-none text-[10px] font-black uppercase tracking-widest text-black"
           >
             <option value="">All Clubs</option>
-            {approvedClubs.map((c) => (
+            {approvedClubs.map((c: any) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
@@ -286,8 +288,8 @@ export default function AdminEventsPage() {
             </thead>
             <tbody className="divide-y divide-black/5">
               <AnimatePresence mode="popLayout">
-                {sorted.map((event) => {
-                  const club = clubs.find((c) => c.id === event.clubId);
+                {sorted.map((event: ClubEvent) => {
+                  const club = clubs.find((c: any) => c.id === event.clubId);
                   return (
                     <motion.tr 
                       layout
@@ -356,6 +358,16 @@ export default function AdminEventsPage() {
                           >
                             <Edit3 size={18} />
                           </button>
+                          
+                          {event.status === 'approved' && (
+                            <button
+                              onClick={() => navigate(`/attendance?eventId=${event.id}`)}
+                              className="w-10 h-10 flex items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all border border-emerald-500/20"
+                              title="Attendance Hub"
+                            >
+                              <UserCheck size={18} />
+                            </button>
+                          )}
                           
                           {(event.status === 'pending' || event.status === 'rejected') && (
                             <button
@@ -427,7 +439,7 @@ export default function AdminEventsPage() {
                 onChange={(e) => setNewEventData({...newEventData, clubId: e.target.value})}
               >
                 <option value="">Select a Club</option>
-                {approvedClubs.map((c) => (
+                {approvedClubs.map((c: any) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>

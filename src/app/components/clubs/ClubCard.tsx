@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router';
 import { Users, ArrowRight, Sparkles } from 'lucide-react';
 import type { Club } from '../../types';
 import { StatusBadge } from '../common/StatusBadge';
+import { ClubLogo } from './ClubLogo';
 import { motion } from 'framer-motion';
 
 interface ClubCardProps {
@@ -31,7 +32,7 @@ export function ClubCard({ club, showStatus = false }: ClubCardProps) {
         ) : (
           <div className="w-full h-full bg-sidebar flex items-center justify-center">
             <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--color-primary)_1px,_transparent_1px)] bg-[size:20px_20px]" />
-            <span className="text-6xl filter grayscale group-hover:grayscale-0 transition-all duration-500">{club.logo}</span>
+            <ClubLogo logo={club.logo} name={club.name} size="xl" className="filter grayscale group-hover:grayscale-0 transition-all duration-500 bg-transparent border-none shadow-none" />
           </div>
         )}
         
@@ -47,13 +48,11 @@ export function ClubCard({ club, showStatus = false }: ClubCardProps) {
             <StatusBadge status={club.status} size="sm" />
           </div>
         )}
+      </div>
 
-        {/* Floating Logo Trigger */}
-        <div className="absolute -bottom-6 left-6 z-20">
-          <div className="w-14 h-14 rounded-2xl bg-card border-4 border-sidebar-accent/50 flex items-center justify-center shadow-2xl group-hover:rotate-6 transition-transform duration-500">
-            <span className="text-2xl">{club.logo}</span>
-          </div>
-        </div>
+      {/* Floating Logo Trigger (Corrected Position) */}
+      <div className="absolute top-[8.5rem] left-6 z-20">
+          <ClubLogo logo={club.logo} name={club.name} size="md" className="border-4 border-sidebar-accent/50 group-hover:rotate-6 transition-transform duration-500" />
       </div>
 
       {/* Content Engine */}

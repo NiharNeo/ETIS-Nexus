@@ -23,6 +23,7 @@ import type { ClubEvent, Club } from '../types';
 import { format } from 'date-fns';
 import { CLUB_COLORS } from '../lib/constants';
 import { StatusBadge } from '../components/common/StatusBadge';
+import { ClubLogo } from '../components/clubs/ClubLogo';
 import { ManageMembersModal } from '../components/clubs/ManageMembersModal';
 import { Modal } from '../components/common/Modal';
 import { ClubForm } from '../components/clubs/ClubForm';
@@ -138,7 +139,7 @@ export default function ClubDetailPage() {
               className="w-full h-full flex items-center justify-center opacity-40"
               style={{ background: `radial-gradient(circle at center, ${clubColor}30, transparent)` }}
             >
-              <span className="text-9xl grayscale opacity-10">{club.logo}</span>
+              <ClubLogo logo={club.logo} name={club.name} size="xl" className="grayscale opacity-10 border-none bg-transparent shadow-none" />
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-sidebar via-sidebar/40 to-transparent" />
@@ -184,13 +185,12 @@ export default function ClubDetailPage() {
 
         {/* Brand Integration Layer */}
         <div className="px-10 pb-12 -mt-20 relative z-10 flex flex-col md:flex-row items-end gap-10">
-          <motion.div
-            whileHover={{ scale: 1.05, rotate: 2 }}
-            className="w-40 h-40 rounded-[2.5rem] bg-card/60 backdrop-blur-3xl flex items-center justify-center shadow-[0_40px_80px_-20px_rgba(0,0,0,0.5)] border-4 border-sidebar flex-shrink-0 relative overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-            <span className="text-7xl relative z-10">{club.logo}</span>
-          </motion.div>
+          <ClubLogo 
+            logo={club.logo} 
+            name={club.name} 
+            size="xl" 
+            className="w-40 h-40 rounded-[2.5rem] bg-card/60 backdrop-blur-3xl shadow-[0_40px_80px_-20px_rgba(0,0,0,0.5)] border-4 border-sidebar flex-shrink-0 relative overflow-hidden" 
+          />
 
           <div className="flex-1 pb-2 space-y-4">
             <div className="space-y-1">

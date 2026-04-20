@@ -41,11 +41,12 @@ export function ClubForm({ initialData, onSubmit, onCancel, isLoading }: ClubFor
         </div>
         
         <div className="space-y-4">
-          <label className={labelText}>Operational Logo (Emoji)</label>
-          <div className="relative group">
-            <LayoutGrid className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground/20 group-focus-within:text-primary transition-colors" size={18} />
-            <input {...register('logo')} className={`${inputStyle} pl-16`} placeholder="e.g. 🤖" />
-          </div>
+          <ImageUploader 
+            label="Institutional Logo"
+            aspectRatio="square"
+            initialImage={watch('logo')}
+            onImageSelected={(base64) => setValue('logo', base64)}
+          />
         </div>
       </div>
 

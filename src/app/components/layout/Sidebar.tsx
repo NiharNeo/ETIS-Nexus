@@ -19,7 +19,8 @@ import {
   Activity,
   Bell,
   Ticket,
-  ScanLine
+  ScanLine,
+  UserCheck
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -61,24 +62,7 @@ const NAV_ITEMS: NavItem[] = [
     to: '/calendar',
     roles: ['super_admin', 'club_rep', 'student'],
   },
-  {
-    label: 'Hackathons',
-    icon: <Zap size={18} />,
-    to: '/hackathons',
-    roles: ['super_admin', 'club_rep', 'student'],
-  },
-  {
-    label: 'History',
-    icon: <HistoryIcon size={18} />,
-    to: '/memories',
-    roles: ['super_admin', 'club_rep', 'student'],
-  },
-  {
-    label: 'Wiki Hub',
-    icon: <BookOpen size={18} />,
-    to: '/knowledge',
-    roles: ['super_admin', 'club_rep', 'student'],
-  },
+
   {
     label: 'Create Event',
     icon: <PlusCircle size={18} />,
@@ -101,6 +85,12 @@ const NAV_ITEMS: NavItem[] = [
     label: 'QR Scanner',
     icon: <ScanLine size={18} />,
     to: '/scan',
+    roles: ['super_admin', 'club_rep'],
+  },
+  {
+    label: 'Attendance Hub',
+    icon: <UserCheck size={18} />,
+    to: '/attendance',
     roles: ['super_admin', 'club_rep'],
   },
   {
@@ -145,23 +135,15 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
     <div className="flex flex-col h-full bg-sidebar/50 backdrop-blur-2xl">
       {/* Branding */}
       <div className="px-8 py-10">
-        <div className="flex items-center gap-4">
-          <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-            <div className="relative w-12 h-12 rounded-xl bg-sidebar-primary flex items-center justify-center shadow-2xl ring-1 ring-white/10">
-              <GraduationCap size={24} className="text-sidebar-primary-foreground" />
-            </div>
-          </div>
-          <div>
-            <h1 className="text-sidebar-foreground text-xl tracking-tighter" style={{ fontWeight: 800 }}>
-              ETIS
-            </h1>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-              <p className="text-muted-foreground font-medium uppercase tracking-[0.1em]" style={{ fontSize: '9px' }}>
-                System Active
-              </p>
-            </div>
+        <div className="flex flex-col">
+          <h1 className="text-sidebar-foreground text-2xl tracking-tighter" style={{ fontWeight: 900 }}>
+            ETIS <span className="text-primary italic">Nexus</span>.
+          </h1>
+          <div className="flex items-center gap-1.5 mt-1">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+            <p className="text-muted-foreground font-medium uppercase tracking-[0.2em]" style={{ fontSize: '9px' }}>
+              Intelligence Sector Active
+            </p>
           </div>
         </div>
       </div>

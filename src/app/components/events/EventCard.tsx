@@ -2,6 +2,7 @@ import { Calendar, Clock, MapPin, Users, ArrowRight, Sparkles, Orbit } from 'luc
 import { format } from 'date-fns';
 import type { ClubEvent, Club } from '../../types';
 import { StatusBadge, ModeBadge } from '../common/StatusBadge';
+import { ClubLogo } from '../clubs/ClubLogo';
 import { CLUB_COLORS } from '../../lib/constants';
 import { motion } from 'framer-motion';
 
@@ -68,9 +69,7 @@ export function EventCard({ event, club, showStatus = false, onClick, compact = 
           {/* Overlay Meta */}
           <div className="absolute bottom-4 left-6 right-6 z-20 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white text-xs font-black shadow-2xl">
-                 {club?.logo || '🏛'}
-              </div>
+               <ClubLogo logo={club?.logo} name={club?.name || ''} size="sm" className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl" />
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 drop-shadow-md">{club?.name}</span>
             </div>
             <ModeBadge mode={event.mode} size="sm" />

@@ -22,6 +22,7 @@ import AnnouncementsPage from './pages/AnnouncementsPage';
 import NotFoundPage from './pages/NotFoundPage';
 import MyTicketsPage from './pages/MyTicketsPage';
 import QRScannerPage from './pages/QRScannerPage';
+import EventAttendancePage from './pages/EventAttendancePage';
 
 export const router = createBrowserRouter([
   {
@@ -48,22 +49,12 @@ export const router = createBrowserRouter([
         path: '/pipeline',
         Component: ProjectPipelinePage,
       },
-      {
-        path: '/hackathons',
-        Component: HackathonRadarPage,
-      },
+
       {
         path: '/contributions',
         Component: ContributionRadarPage,
       },
-      {
-        path: '/memories',
-        Component: ProjectMemoryWallPage,
-      },
-      {
-        path: '/knowledge',
-        Component: KnowledgeBasePage,
-      },
+
       {
         path: '/announcements',
         Component: AnnouncementsPage,
@@ -75,6 +66,10 @@ export const router = createBrowserRouter([
       {
         path: '/scan',
         Component: QRScannerPage,
+      },
+      {
+        path: '/attendance',
+        Component: EventAttendancePage,
       },
       {
         path: '/clubs',

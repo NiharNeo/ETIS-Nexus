@@ -3,6 +3,7 @@ import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router';
 import { StatusBadge } from '../components/common/StatusBadge';
+import { ClubLogo } from '../components/clubs/ClubLogo';
 import { Modal } from '../components/common/Modal';
 import { ImageUploader } from '../components/common/ImageUploader';
 import { uploadFile } from '../lib/supabase';
@@ -87,7 +88,12 @@ export default function AdminClubsPage() {
       return;
     }
     try {
-      let logoUrl = '🏛️';
+      if (!logoFile) {
+        toast.error('Logo Required', { description: 'Institutional protocol requires a club logo.' });
+        return;
+      }
+
+      let logoUrl = '';
       let coverUrl = '';
 
       if (logoFile) {
@@ -245,9 +251,12 @@ export default function AdminClubsPage() {
                   >
                     <td className="px-10 py-8">
                       <div className="flex items-center gap-6">
-                        <div className="w-14 h-14 rounded-2xl bg-zinc-100 flex items-center justify-center text-3xl border border-black/5 group-hover:scale-110 transition-transform">
-                           {club.logo}
-                        </div>
+                        <ClubLogo 
+                          logo={club.logo} 
+                          name={club.name} 
+                          size="md" 
+                          className="group-hover:scale-110 transition-transform" 
+                        />
                         <div>
                           <p className="text-xl font-black text-black tracking-tighter leading-none mb-1 group-hover:underline">
                             {club.name}

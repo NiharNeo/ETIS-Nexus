@@ -11,6 +11,7 @@ import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 import { Modal } from '../common/Modal';
 import { EventForm } from './EventForm';
+import { ClubLogo } from '../clubs/ClubLogo';
 import { useNavigate } from 'react-router';
 
 interface EventDetailModalProps {
@@ -137,9 +138,7 @@ export function EventDetailModal({ event, club, open, onClose }: EventDetailModa
                 {/* Entity Integration */}
                 {club && (
                   <div className="flex items-center gap-5 p-4 rounded-[2rem] bg-sidebar/50 border border-border/5 ring-1 ring-white/5">
-                    <div className="w-14 h-14 rounded-2xl bg-card flex items-center justify-center text-3xl shadow-inner border border-border/10">
-                      {club.logo}
-                    </div>
+                    <ClubLogo logo={club.logo} name={club.name} size="md" />
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-1">Sector Origin</p>
                       <p className="text-lg font-black text-foreground tracking-tighter leading-none">
