@@ -1,69 +1,37 @@
-@custom-variant dark (&:is(.dark *));
-
 :root {
   --font-size: 16px;
-  --background: #ffffff;
-  --foreground: #0b1326;
+  --background: #fdfdfd;       /* Soft, slightly warm off-white for reduced eye strain */
+  --foreground: #020617;       /* Slate 950 for extreme readability header text */
   --card: #ffffff;
-  --card-foreground: #0b1326;
+  --card-foreground: #0f172a;  /* Slate 900 for card body text */
   --popover: #ffffff;
-  --popover-foreground: #0b1326;
-  --primary: #2563eb;
+  --popover-foreground: #020617;
+  --primary: #2563eb;          /* Clear Blue 600 */
   --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0b1326;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #f1f5f9;
+  --secondary: #f1f5f9;        /* Slate 100 */
+  --secondary-foreground: #0f172a;
+  --muted: #f8fafc;            /* Slate 50 */
+  --muted-foreground: #64748b; /* Slate 500 */
+  --accent: #eff6ff;           /* Blue 50 */
   --accent-foreground: #2563eb;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
+  --border: #e2e8f0;           /* Slate 200 */
   --input: #e2e8f0;
   --input-background: #ffffff;
   --switch-background: #cbd5e1;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
   --ring: #2563eb;
-  --radius: 0.75rem;
+  --radius: 1rem;              /* Slightly softer rounding for a friendlier modern feel */
 
-  --sidebar: #ffffff;
-  --sidebar-foreground: #0b1326;
+  --sidebar: #fdfdfd;
+  --sidebar-foreground: #0f172a;
   --sidebar-primary: #2563eb;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #f1f5f9;
   --sidebar-accent-foreground: #2563eb;
   --sidebar-border: #e2e8f0;
-  --sidebar-ring: #2563eb;
-}
-
-.dark {
-  --background: #0b1326;
-  --foreground: #dae2fd;
-  --card: #171f33;
-  --card-foreground: #dae2fd;
-  --popover: #171f33;
-  --popover-foreground: #dae2fd;
-  --primary: #2563eb;
-  --primary-foreground: #ffffff;
-  --secondary: #131b2e;
-  --secondary-foreground: #dae2fd;
-  --muted: #131b2e;
-  --muted-foreground: #94a3b8;
-  --accent: #131b2e;
-  --accent-foreground: #2563eb;
-  --destructive: #7f1d1d;
-  --destructive-foreground: #fef2f2;
-  --border: #2d3449;
-  --input: #2d3449;
-  --ring: #2563eb;
-  --sidebar: #0b1326;
-  --sidebar-foreground: #dae2fd;
-  --sidebar-primary: #2563eb;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #171f33;
-  --sidebar-accent-foreground: #dae2fd;
-  --sidebar-border: #2d3449;
   --sidebar-ring: #2563eb;
 }
 

@@ -7,24 +7,24 @@ import { Toaster } from 'sonner';
 
 export default function App() {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <AuthProvider>
-        <DataProvider>
-          <RouterProvider router={router} />
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              style: {
-                background: '#1e293b',
-                color: '#f8fafc',
-                border: '1px solid #334155',
-                borderRadius: '12px',
-                fontSize: '14px',
-              },
-            }}
-          />
-        </DataProvider>
-      </AuthProvider>
-    </ThemeProvider>
+
+    <AuthProvider>
+      <DataProvider>
+        <RouterProvider router={router} />
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: '#ffffff',
+              color: '#0f172a',
+              border: '1px solid #e2e8f0',
+              borderRadius: '16px',
+              fontSize: '14px',
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+            },
+          }}
+        />
+      </DataProvider>
+    </AuthProvider>
   );
 }
