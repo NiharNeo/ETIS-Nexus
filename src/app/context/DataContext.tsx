@@ -721,6 +721,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const getUsers = useCallback(async () => {
+    if (user?.role !== 'super_admin') {
+      console.warn('Access Denied: Sector Directory access limited to Super Admins.');
+      return [];
+    }
     try {
       const { data, error } = await supabase.from('profiles').select('*');
       if (error) throw error;
@@ -728,7 +732,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       return [];
     }
-  }, []);
+  }, [user]);
 
   const getClubMembers = useCallback(async (clubId: string): Promise<ClubMember[]> => {
     try {
@@ -746,16 +750,28 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const addClubMember = useCallback(async (clubId: string, memberData: any): Promise<ClubMember | null> => {
     try {
+      let linkedUserId = memberData.userId;
+
+      // Email Discovery: If no userId provided, attempt to resolve via email
+      if (!linkedUserId && memberData.email) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id, role')
+          .eq('email', memberData.email)
+          .single();
+        if (profile) linkedUserId = profile.id;
+      }
+
       const { data, error } = await supabase
         .from('club_members')
         .insert({
           club_id: clubId,
-          user_id: memberData.userId || null,
+          user_id: linkedUserId || null,
           name: memberData.name,
           email: memberData.email,
           role: memberData.role
         })
-        .select(`*, profiles:user_id(name, email)`)
+        .select(`*, profiles:user_id(name, email, role)`)
         .single();
       
       if (error) throw error;
@@ -767,10 +783,17 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setClubs(prev => prev.map(c => c.id === clubId ? { ...c, memberCount: memberCount } : c));
       }
 
-      if (memberData.role === 'Club Representative' && memberData.userId) {
+      if (memberData.role === 'Club Representative' && linkedUserId) {
+        const { data: profile } = await supabase.from('profiles').select('role').eq('id', linkedUserId).single();
+        
+        // PROTECTION: Only upgrade role if the user is a student. Never downgrade super_admin.
+        const roleUpdatePromise = profile?.role === 'student' 
+          ? supabase.from('profiles').update({ role: 'club_rep' }).eq('id', linkedUserId)
+          : Promise.resolve();
+
         await Promise.all([
-          supabase.from('club_reps').upsert({ club_id: clubId, user_id: memberData.userId }),
-          supabase.from('profiles').update({ role: 'club_rep' }).eq('id', memberData.userId)
+          supabase.from('club_reps').upsert({ club_id: clubId, user_id: linkedUserId }),
+          roleUpdatePromise
         ]);
         
         const { data: allReps } = await supabase.from('club_reps').select('*');
@@ -821,10 +844,16 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const assignRep = useCallback(async (clubId: string, userId: string, action: 'add' | 'remove') => {
     try {
       if (action === 'add') {
-        const { data: profile } = await supabase.from('profiles').select('name, email').eq('id', userId).single();
+        const { data: profile } = await supabase.from('profiles').select('name, email, role').eq('id', userId).single();
+        
+        // PROTECTION: Only upgrade role if student
+        const roleUpdatePromise = profile?.role === 'student'
+          ? supabase.from('profiles').update({ role: 'club_rep' }).eq('id', userId)
+          : Promise.resolve();
+
         await Promise.all([
           supabase.from('club_reps').upsert({ club_id: clubId, user_id: userId }),
-          supabase.from('profiles').update({ role: 'club_rep' }).eq('id', userId),
+          roleUpdatePromise,
           supabase.from('club_members').upsert({ 
             club_id: clubId, 
             user_id: userId, 

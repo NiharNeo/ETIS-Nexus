@@ -130,7 +130,8 @@ export function ManageMembersModal({ club, open, onClose }: ManageMembersModalPr
                   />
                   <input
                     type="email"
-                    placeholder="Email (Optional)"
+                    placeholder="University Email"
+                    required={newMemberRole === 'Club Representative'}
                     value={newMemberEmail}
                     onChange={e => setNewMemberEmail(e.target.value)}
                     className="px-4 py-3 rounded-xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm font-medium"
@@ -150,9 +151,12 @@ export function ManageMembersModal({ club, open, onClose }: ManageMembersModalPr
 
                 {user?.role === 'super_admin' && (
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 pl-2">
-                      Link to University Account (Required for Reps)
-                    </label>
+                    <div className="flex items-center justify-between px-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
+                        Admin Discovery: Link University Account
+                      </label>
+                      <span className="text-[10px] font-medium text-primary/60 italic leading-none">Super Admin Privilege</span>
+                    </div>
                     <select
                       value={selectedUserId}
                       onChange={e => {
@@ -175,7 +179,12 @@ export function ManageMembersModal({ club, open, onClose }: ManageMembersModalPr
                   </div>
                 )}
                 
-                <div className="flex justify-end pt-2">
+                <div className="flex items-center justify-between pt-2">
+                  <p className="text-[10px] text-muted-foreground/40 font-medium italic">
+                    {user?.role === 'super_admin' 
+                      ? 'Linking an account will synchronize institutional credentials.' 
+                      : 'Provide university email to bridge membership with user accounts.'}
+                  </p>
                   <button
                     type="submit"
                     disabled={submitting}
