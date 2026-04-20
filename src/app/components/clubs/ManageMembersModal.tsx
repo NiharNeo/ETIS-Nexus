@@ -198,54 +198,102 @@ export function ManageMembersModal({ club, open, onClose }: ManageMembersModalPr
 
             {canManage && <div className="w-full h-px bg-border/50" />}
 
-            {/* Current Roster */}
+            {/* Institutional Roster */}
             <div>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-4">Current Roster ({members.length})</h3>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 flex items-center gap-2">
+                  <ShieldCheck size={14} className="text-primary" />
+                  Elite Sector Roster ({members.length})
+                </h3>
+                <div className="h-px flex-1 bg-border/20 mx-4" />
+              </div>
               
               {loading ? (
-                <div className="py-12 flex justify-center">
-                  <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                <div className="py-24 flex flex-col items-center justify-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl border-2 border-primary border-t-transparent animate-spin" />
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Synchronizing Roster...</p>
                 </div>
               ) : members.length === 0 ? (
-                <div className="py-12 text-center text-muted-foreground bg-sidebar/50 rounded-2xl border border-dashed border-border/50">
-                  <p className="font-medium">No members added yet.</p>
+                <div className="py-24 text-center text-muted-foreground bg-sidebar/30 rounded-[2.5rem] border border-dashed border-border/20">
+                  <Users size={40} className="mx-auto mb-4 opacity-10" />
+                  <p className="font-bold text-sm italic">Negative results. Roster not yet initialized.</p>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {members.map(member => (
-                    <div key={member.id} className="flex items-center justify-between p-4 rounded-2xl border border-border/50 bg-background hover:bg-sidebar transition-colors group">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg">
-                          {member.name.charAt(0)}
+                <div className="grid grid-cols-1 gap-4">
+                  {members.sort((a, b) => {
+                    const roles = { 'President': 0, 'Vice President': 1, 'Club Representative': 2, 'Treasurer': 3, 'Core Group': 4, 'Member': 5 };
+                    // Use a generic fallback if the specific role isn't in our sorting map
+                    const getRoleScore = (role: string) => {
+                      for (const [key, val] of Object.entries(roles)) {
+                        if (role.toLowerCase().includes(key.toLowerCase())) return val;
+                      }
+                      return 99;
+                    };
+                    return getRoleScore(a.role) - getRoleScore(b.role);
+                  }).map(member => (
+                    <motion.div 
+                      key={member.id} 
+                      layout
+                      className="flex items-center justify-between p-5 rounded-[1.8rem] border border-border/40 bg-card hover:bg-sidebar/80 hover:border-primary/20 transition-all group relative overflow-hidden"
+                    >
+                      {/* Status Background Glow for Admins */}
+                      {member.role === 'Club Representative' && (
+                        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent pointer-events-none" />
+                      )}
+
+                      <div className="flex items-center gap-5 relative z-10">
+                        <div className="relative">
+                          <div className="w-12 h-12 rounded-2xl bg-sidebar border border-border/40 text-primary flex items-center justify-center font-black text-xl shadow-inner">
+                            {member.name.charAt(0)}
+                          </div>
+                          {member.userId && (
+                            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-lg flex items-center justify-center text-white border-2 border-card">
+                              <ShieldCheck size={10} />
+                            </div>
+                          )}
                         </div>
                         <div>
-                          <p className="font-bold text-foreground text-sm">{member.name}</p>
-                          <div className="flex items-center gap-3 mt-0.5">
-                            <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-md">
+                          <div className="flex items-center gap-2">
+                            <p className="font-black text-foreground tracking-tight text-base leading-none capitalize">
+                              {member.name}
+                            </p>
+                            {member.userId === user?.id && (
+                              <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[8px] font-black uppercase tracking-tighter">You</span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 mt-2">
+                            <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${getRoleBadgeClass(member.role)}`}>
                               {member.role}
                             </span>
                             {member.email && (
-                              <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                <Mail size={12} /> {member.email}
+                              <span className="text-[10px] text-muted-foreground/50 font-bold flex items-center gap-1.5 hover:text-foreground transition-colors cursor-default">
+                                <Mail size={12} className="opacity-40" /> {member.email}
                               </span>
                             )}
                           </div>
                         </div>
                       </div>
                       
-                      {canManage && (
-                        <button 
-                          onClick={async () => {
-                            if (!window.confirm("Verify termination?")) return;
-                            const success = await removeClubMember(club.id, member.id);
-                            if (success) setMembers(members.filter(m => m.id !== member.id));
-                          }}
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-rose-500/50 hover:text-rose-500 hover:bg-rose-500/10 transition-colors opacity-0 group-hover:opacity-100"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      )}
-                    </div>
+                      <div className="flex items-center gap-2 relative z-10">
+                        {canManage && (
+                          <button 
+                            disabled={member.userId === user?.id || members.find(m => m.id === member.id && m.name === 'Super Admin') !== undefined}
+                            onClick={async () => {
+                              if (!window.confirm(`Verify termination of ${member.name}'s institutional access?`)) return;
+                              const success = await removeClubMember(club.id, member.id);
+                              if (success) setMembers(members.filter(m => m.id !== member.id));
+                            }}
+                            className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${
+                              member.userId === user?.id 
+                                ? 'hidden' 
+                                : 'text-rose-500/30 hover:text-rose-500 hover:bg-rose-500/10 opacity-0 group-hover:opacity-100'
+                            }`}
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        )}
+                      </div>
+                    </motion.div>
                   ))}
                 </div>
               )}
@@ -256,4 +304,11 @@ export function ManageMembersModal({ club, open, onClose }: ManageMembersModalPr
       )}
     </AnimatePresence>
   );
+}
+
+function getRoleBadgeClass(role: string) {
+  const r = role.toLowerCase();
+  if (r.includes('rep') || r.includes('president')) return 'bg-primary/5 border-primary/20 text-primary';
+  if (r.includes('treasurer') || r.includes('group')) return 'bg-amber-500/5 border-amber-500/20 text-amber-500';
+  return 'bg-muted border-border/50 text-muted-foreground/60';
 }
