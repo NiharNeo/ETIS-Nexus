@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
-import { Calendar, Clock, MapPin, Users, ExternalLink, Tag, Ticket, CheckCircle2, X, ShieldCheck, Send, Edit3 } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import { Calendar, Clock, MapPin, Users, ExternalLink, Tag, Ticket, CheckCircle2, X, ShieldCheck, Send, Edit3, Download, ScanLine } from 'lucide-react';
+import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import type { ClubEvent, Club } from '../../types';
 import { StatusBadge, ModeBadge } from '../common/StatusBadge';
 import { CLUB_COLORS } from '../../lib/constants';
@@ -11,6 +11,7 @@ import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 import { Modal } from '../common/Modal';
 import { EventForm } from './EventForm';
+import { useNavigate } from 'react-router';
 
 interface EventDetailModalProps {
   event: ClubEvent | null;
@@ -26,6 +27,11 @@ export function EventDetailModal({ event, club, open, onClose }: EventDetailModa
   const { registerForEvent, approveEvent, rejectEvent, submitForApproval, getRegistrations, updateEvent } = useData();
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
+
+  const qrPayload = userRegistration
+    ? JSON.stringify({ ticket_id: userRegistration.qrCodeId, event_id: event?.id })
+    : event ? `ETIS-SIGNAL-${event.id}` : '';
 
   const fetchRegistration = useCallback(() => {
     if (user && event) {
@@ -199,8 +205,19 @@ export function EventDetailModal({ event, club, open, onClose }: EventDetailModa
                       
                       <div className="bg-white p-6 rounded-[2.5rem] shadow-2xl ring-4 ring-primary/10 border border-primary/20 relative z-10 group-hover:scale-105 transition-transform duration-500">
                         <QRCodeSVG 
-                          value={userRegistration?.qrCodeId || `UNIFIED-SIGNAL-${event.id}`} 
+                          value={qrPayload} 
                           size={180}
+                          level="H"
+                          includeMargin={true}
+                          fgColor="#000000"
+                        />
+                      </div>
+                      {/* Hidden canvas for download */}
+                      <div className="hidden">
+                        <QRCodeCanvas
+                          id={`modal-qr-canvas-${event.id}`}
+                          value={qrPayload}
+                          size={400}
                           level="H"
                           includeMargin={true}
                           fgColor="#000000"
@@ -211,12 +228,29 @@ export function EventDetailModal({ event, club, open, onClose }: EventDetailModa
                         TOKEN-{userRegistration?.qrCodeId?.split('-')[0].toUpperCase() || 'SYNCHRONIZING'}
                       </p>
 
-                      <button
-                        onClick={() => setShowTicket(false)}
-                        className="text-primary font-black uppercase text-[10px] tracking-[0.3em] hover:opacity-100 opacity-60 transition-opacity flex items-center gap-2"
-                      >
-                        Return to Intelligence Bio
-                      </button>
+                      {/* Action Row */}
+                      <div className="flex items-center gap-3 relative z-10">
+                        <button
+                          onClick={() => {
+                            const canvas = document.getElementById(`modal-qr-canvas-${event.id}`) as HTMLCanvasElement | null;
+                            if (canvas) {
+                              const link = document.createElement('a');
+                              link.href = canvas.toDataURL('image/png');
+                              link.download = `ETIS-Ticket-${event.title.replace(/\s+/g, '-')}.png`;
+                              link.click();
+                            }
+                          }}
+                          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-all shadow-lg shadow-primary/20"
+                        >
+                          <Download size={13} /> Download
+                        </button>
+                        <button
+                          onClick={() => { onClose(); navigate('/my-tickets'); }}
+                          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-muted-foreground/60 text-[10px] font-black uppercase tracking-[0.2em] hover:text-foreground transition-all"
+                        >
+                          <ScanLine size={13} /> All Tickets
+                        </button>
+                      </div>
                     </motion.div>
                   ) : (
                     <motion.div 

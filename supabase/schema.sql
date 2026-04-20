@@ -319,3 +319,42 @@ CREATE POLICY "Users can submit requests" ON membership_requests FOR INSERT WITH
 CREATE POLICY "Reps can manage requests" ON membership_requests FOR ALL 
     USING (EXISTS (SELECT 1 FROM club_reps WHERE club_id = membership_requests.club_id AND user_id = auth.uid()));
 
+-- 21. Attendance Table (QR Scan Audit Log)
+-- Run this migration in Supabase SQL Editor if not already applied.
+CREATE TABLE IF NOT EXISTS attendance (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    registration_id UUID REFERENCES registrations(id) ON DELETE CASCADE,
+    event_id UUID REFERENCES events(id) ON DELETE CASCADE,
+    scanned_at TIMESTAMPTZ DEFAULT NOW(),
+    marked_by UUID REFERENCES profiles(id)
+);
+
+ALTER TABLE attendance ENABLE ROW LEVEL SECURITY;
+
+-- Only reps/admins of the event's club can insert attendance records
+CREATE POLICY "Reps and Admins can record attendance" ON attendance FOR INSERT
+    WITH CHECK (
+        EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'super_admin') OR
+        EXISTS (
+            SELECT 1 FROM club_reps cr
+            JOIN events e ON cr.club_id = e.club_id
+            WHERE e.id = attendance.event_id AND cr.user_id = auth.uid()
+        )
+    );
+
+-- Users can view their own attendance records
+CREATE POLICY "Users can view their attendance" ON attendance FOR SELECT
+    USING (
+        EXISTS (SELECT 1 FROM registrations r WHERE r.id = attendance.registration_id AND r.user_id = auth.uid()) OR
+        EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'super_admin')
+    );
+
+-- Reps can view attendance records for their events
+CREATE POLICY "Reps can view event attendance" ON attendance FOR SELECT
+    USING (
+        EXISTS (
+            SELECT 1 FROM club_reps cr
+            JOIN events e ON cr.club_id = e.club_id
+            WHERE e.id = attendance.event_id AND cr.user_id = auth.uid()
+        )
+    );

@@ -15,7 +15,8 @@ import type {
   DepartmentContribution, 
   ProjectMemory, 
   WikiArticle,
-  Announcement
+  Announcement,
+  AttendanceRecord
 } from '../types';
 
 // Alias to avoid conflict with browser Notification
@@ -60,6 +61,7 @@ interface DataContextValue {
   registerForEvent: (eventId: string) => Promise<boolean>;
   getRegistrations: (eventId?: string) => Promise<EventRegistration[]>;
   checkInStudent: (regId: string, eventId: string) => Promise<boolean>;
+  validateAndCheckIn: (qrPayload: string, eventId: string) => Promise<{ success: boolean; message: string; registration?: EventRegistration }>;
   
   assignRep: (clubId: string, userId: string, action: 'add' | 'remove') => Promise<boolean>;
   getUsers: () => Promise<any[]>;
@@ -148,6 +150,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     userEmail: r.profiles?.email,
     userDepartment: r.profiles?.department,
     qrCodeId: r.qr_code_id,
+    ticketId: r.qr_code_id,
     checkedIn: !!r.checked_in
   }), []);
 
@@ -705,6 +708,19 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         .update({ status: 'checked_in', checked_in: true })
         .eq('id', regId);
       if (error) throw error;
+
+      // Log to attendance table (best-effort — non-blocking)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        await supabase.from('attendance').insert({
+          registration_id: regId,
+          event_id: eventId,
+          marked_by: session.user.id
+        }).then(({ error: attErr }) => {
+          if (attErr) console.warn('Attendance log failed (table may not exist yet):', attErr.message);
+        });
+      }
+
       setRegistrations(prev => prev.map(r => r.id === regId ? { ...r, status: 'checked_in', checkedIn: true } : r));
       return true;
     } catch (err) {
@@ -712,6 +728,66 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       return false;
     }
   }, []);
+
+  /**
+   * Decode a QR payload JSON string, validate it against the current event,
+   * prevent duplicate scans, and mark attendance.
+   */
+  const validateAndCheckIn = useCallback(async (
+    qrPayload: string,
+    eventId: string
+  ): Promise<{ success: boolean; message: string; registration?: EventRegistration }> => {
+    try {
+      // 1. Decode payload
+      let decoded: { ticket_id?: string; event_id?: string };
+      try {
+        decoded = JSON.parse(qrPayload);
+      } catch {
+        // Legacy plain-string QR (raw qr_code_id)
+        decoded = { ticket_id: qrPayload, event_id: eventId };
+      }
+
+      // 2. Validate event match
+      if (decoded.event_id && decoded.event_id !== eventId) {
+        return { success: false, message: 'invalid_event' };
+      }
+
+      const ticketId = decoded.ticket_id;
+      if (!ticketId) {
+        return { success: false, message: 'invalid_format' };
+      }
+
+      // 3. Look up registration by qr_code_id
+      const { data: reg, error: lookupErr } = await supabase
+        .from('registrations')
+        .select(`*, profiles(name, email, department)`)
+        .eq('qr_code_id', ticketId)
+        .eq('event_id', eventId)
+        .single();
+
+      if (lookupErr || !reg) {
+        return { success: false, message: 'not_found' };
+      }
+
+      // 4. Check if already scanned
+      if (reg.checked_in || reg.status === 'checked_in') {
+        const mapped = mapRegistration(reg);
+        return { success: false, message: 'already_scanned', registration: mapped };
+      }
+
+      // 5. Mark attendance
+      const checkedIn = await checkInStudent(reg.id, eventId);
+      if (!checkedIn) {
+        return { success: false, message: 'db_error' };
+      }
+
+      const mapped = mapRegistration({ ...reg, checked_in: true, status: 'checked_in' });
+      return { success: true, message: 'success', registration: mapped };
+    } catch (err) {
+      console.error('validateAndCheckIn error:', err);
+      return { success: false, message: 'db_error' };
+    }
+  }, [checkInStudent, mapRegistration]);
 
   const getUsers = useCallback(async () => {
     if (user?.role !== 'super_admin') {
@@ -1016,6 +1092,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         registerForEvent,
         getRegistrations,
         checkInStudent,
+        validateAndCheckIn,
         getClubMembers,
         addClubMember,
         removeClubMember,

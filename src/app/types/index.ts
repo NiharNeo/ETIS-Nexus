@@ -74,11 +74,23 @@ export interface EventRegistration {
   userId: string;
   status: 'registered' | 'checked_in';
   registeredAt: string;
+  /** UUID stored in qr_code_id column — used as the ticket_id inside the QR payload */
   qrCodeId: string;
+  /** Alias for qrCodeId — human-readable reference */
+  ticketId?: string;
   userName?: string;
   userEmail?: string;
   userDepartment?: string;
   checkedIn: boolean;
+}
+
+// ─── Attendance Types ─────────────────────────────────────────────────────────
+export interface AttendanceRecord {
+  id: string;
+  registrationId: string;
+  eventId: string;
+  scannedAt: string;
+  markedBy: string;
 }
 
 export interface ClubEvent {

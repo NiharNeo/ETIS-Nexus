@@ -17,7 +17,9 @@ import {
   BarChart3,
   History as HistoryIcon,
   Activity,
-  Bell
+  Bell,
+  Ticket,
+  ScanLine
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -88,6 +90,18 @@ const NAV_ITEMS: NavItem[] = [
     icon: <Activity size={18} />,
     to: '/rep/events',
     roles: ['club_rep'],
+  },
+  {
+    label: 'My Tickets',
+    icon: <Ticket size={18} />,
+    to: '/my-tickets',
+    roles: ['super_admin', 'club_rep', 'student'],
+  },
+  {
+    label: 'QR Scanner',
+    icon: <ScanLine size={18} />,
+    to: '/scan',
+    roles: ['super_admin', 'club_rep'],
   },
   {
     label: 'Event Approvals',

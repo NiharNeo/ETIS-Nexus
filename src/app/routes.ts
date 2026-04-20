@@ -20,6 +20,8 @@ import KnowledgeBasePage from './pages/KnowledgeBasePage';
 import SettingsPage from './pages/SettingsPage';
 import AnnouncementsPage from './pages/AnnouncementsPage';
 import NotFoundPage from './pages/NotFoundPage';
+import MyTicketsPage from './pages/MyTicketsPage';
+import QRScannerPage from './pages/QRScannerPage';
 
 export const router = createBrowserRouter([
   {
@@ -65,6 +67,14 @@ export const router = createBrowserRouter([
       {
         path: '/announcements',
         Component: AnnouncementsPage,
+      },
+      {
+        path: '/my-tickets',
+        Component: MyTicketsPage,
+      },
+      {
+        path: '/scan',
+        Component: QRScannerPage,
       },
       {
         path: '/clubs',

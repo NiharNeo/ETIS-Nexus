@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import type { EventRegistration } from '../types';
 import { 
   Users, CheckCircle2, Ticket, Search, ArrowLeft,
-  Activity, Zap, ShieldCheck
+  Activity, Zap, ShieldCheck, ScanLine
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -14,7 +14,7 @@ export default function EventManagePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { events, clubs, getRegistrations, checkInStudent } = useData();
+  const { events, clubs, getRegistrations, checkInStudent, validateAndCheckIn } = useData();
   
   const [registrations, setRegistrations] = useState<EventRegistration[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -72,7 +72,7 @@ export default function EventManagePage() {
   };
 
   const handleCheckInByToken = async () => {
-    if (!tokenSearch.trim()) return;
+    if (!tokenSearch.trim() || !id) return;
     const reg = registrations.find(r => r.qrCodeId === tokenSearch.trim() || r.qrCodeId?.startsWith(tokenSearch.trim().toLowerCase()));
     if (!reg) {
       toast.error('Invalid Signal', { description: 'Token not found in local frequency registry.' });
@@ -132,7 +132,7 @@ export default function EventManagePage() {
               <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 mb-1.5">Total Registrants</p>
               <p className="text-2xl font-black text-foreground tracking-tighter leading-none">{registrations.length}</p>
            </div>
-           <div className="px-6">
+           <div className="px-6 border-r border-border/10">
               <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 mb-1.5">Checked In</p>
               <div className="flex items-center gap-2">
                  <p className="text-2xl font-black text-emerald-500 tracking-tighter leading-none">
@@ -140,7 +140,20 @@ export default function EventManagePage() {
                  </p>
               </div>
            </div>
+           <div className="px-6">
+              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 mb-1.5">Rate</p>
+              <p className="text-2xl font-black text-primary tracking-tighter leading-none">
+                {registrations.length > 0 ? Math.round((registrations.filter(r => r.status === 'checked_in').length / registrations.length) * 100) : 0}%
+              </p>
+           </div>
         </div>
+        {/* QR Scanner Shortcut */}
+        <button
+          onClick={() => navigate(`/scan?eventId=${id}`)}
+          className="flex items-center gap-3 px-6 py-4 rounded-[2rem] bg-primary text-white font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+        >
+          <ScanLine size={18} /> Open QR Scanner
+        </button>
       </motion.div>
 
       <motion.div
