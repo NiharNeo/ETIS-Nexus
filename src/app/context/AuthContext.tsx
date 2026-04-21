@@ -4,7 +4,6 @@ import { supabase } from '../lib/supabase';
 
 interface AuthContextValue extends AuthState {
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
-  registerUser: (data: { name: string; email: string; password: string; department?: string }) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => void;
   refreshProfile: () => Promise<void>;
@@ -105,34 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
-  const registerUser = useCallback(
-    async (data: { name: string; email: string; password: string; department?: string }): Promise<{ success: boolean; message?: string }> => {
-      try {
-        const { data: authData, error } = await supabase.auth.signUp({
-          email: data.email,
-          password: data.password,
-          options: {
-            data: {
-              full_name: data.name,
-              department: data.department
-            }
-          }
-        });
-        
-        if (error) throw error;
-        
-        if (authData.user) {
-          // Trigger handle_new_user should have run.
-          // fetchProfile will be called by onAuthStateChange
-          return { success: true };
-        }
-        return { success: false, message: 'Registration failed.' };
-      } catch (error: any) {
-        return { success: false, message: error.message || 'Registration failure.' };
-      }
-    },
-    []
-  );
+
 
   const logout = useCallback(async () => {
     await supabase.auth.signOut();
@@ -197,7 +169,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: !!user && !!token,
         loading,
         login,
-        registerUser,
         logout,
         updateUser,
         refreshProfile,

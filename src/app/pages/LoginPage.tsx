@@ -6,14 +6,8 @@
   import { motion, AnimatePresence } from 'motion/react';
 
   export default function LoginPage() {
-    const { login, registerUser, isAuthenticated, loading: authLoading, signInWithLinkedIn } = useAuth();
+    const { login, isAuthenticated, loading: authLoading, signInWithLinkedIn } = useAuth();
     const navigate = useNavigate();
-    const [isRegistering, setIsRegistering] = useState(false);
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [department, setDepartment] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     
@@ -27,24 +21,7 @@
 
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
-      setError('');
-      if (!email || !password || (isRegistering && !name)) {
-        setError('Credentials required for institutional access.');
-        return;
-      }
-      setLoading(true);
-      let result;
-      if (isRegistering) {
-        result = await registerUser({ name, email, password, department });
-      } else {
-        result = await login(email, password);
-      }
-      setLoading(false);
-      if (result.success) {
-        navigate('/dashboard');
-      } else {
-        setError(result.message ?? 'Authentication rejected.');
-      }
+      // Manual login disabled on this portal
     };
 
     const handleLinkedInLogin = async () => {
@@ -56,10 +33,7 @@
       }
     };
 
-    const toggleMode = () => {
-      setIsRegistering(!isRegistering);
-      setError('');
-    };
+
 
     return (
       <div className="min-h-screen flex flex-col lg:flex-row bg-background selection:bg-primary/20">
@@ -138,12 +112,12 @@
               <div className="mb-10">
                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-3">Portal Authentication</p>
                  <h2 className="text-4xl font-black text-foreground tracking-tighter leading-none">
-                   {isRegistering ? 'Create Account' : 'Welcome Back'} <br />
-                   <span className="text-foreground/10 italic">{isRegistering ? 'Student Identity.' : 'Sign In.'}</span>
+                   Welcome Back <br />
+                   <span className="text-foreground/10 italic">Sign In.</span>
                  </h2>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-8">
                 <AnimatePresence mode="wait">
                   {error && (
                     <motion.div 
@@ -159,117 +133,24 @@
                   )}
                 </AnimatePresence>
 
-                <div className="space-y-5">
-                  {isRegistering && (
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 px-1">
-                         Full Name
-                      </label>
-                      <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="e.g. John Doe"
-                        className="w-full px-6 py-4 bg-slate-50 border border-black/5 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/5 text-sm font-bold text-foreground transition-all"
-                      />
-                    </div>
-                  )}
-
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 px-1">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="name@university.edu"
-                      className="w-full px-6 py-4 bg-slate-50 border border-black/5 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/5 text-sm font-bold text-foreground transition-all"
-                    />
-                  </div>
-
-                  {isRegistering && (
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 px-1">
-                        Department
-                      </label>
-                      <input
-                        type="text"
-                        value={department}
-                        onChange={(e) => setDepartment(e.target.value)}
-                        placeholder="e.g. Computer Science"
-                        className="w-full px-6 py-4 bg-slate-50 border border-black/5 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/5 text-sm font-bold text-foreground transition-all"
-                      />
-                    </div>
-                  )}
-
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 px-1">
-                      Password
-                    </label>
-                    <div className="relative group">
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••••••"
-                        className="w-full px-6 py-4 bg-slate-50 border border-black/5 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/5 text-sm font-bold text-foreground transition-all"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword((s) => !s)}
-                        className="absolute right-5 top-1/2 -translate-y-1/2 text-foreground/20 hover:text-primary transition-colors"
-                      >
-                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
                 <motion.button
-                  type="submit"
-                  disabled={loading}
+                  type="button"
+                  onClick={handleLinkedInLogin}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  className="w-full py-5 rounded-2xl bg-black text-white font-black uppercase text-[10px] tracking-[0.3em] shadow-xl hover:bg-zinc-800 transition-all disabled:opacity-50 flex items-center justify-center gap-3 overflow-hidden"
+                  className="w-full py-6 rounded-3xl bg-white border border-black/5 text-[#0077B5] font-black uppercase text-[11px] tracking-[0.4em] shadow-xl shadow-black/5 hover:bg-slate-50 transition-all flex items-center justify-center gap-4 group"
                 >
-                  {loading ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      <LogIn size={16} /> {isRegistering ? 'Create Identity' : 'Sign In to Portal'}
-                    </>
-                  )}
+                  <div className="p-2 bg-[#0077B5]/10 rounded-xl group-hover:bg-[#0077B5]/20 transition-colors">
+                    <Linkedin size={20} fill="currentColor" />
+                  </div>
+                  Verify Identity via LinkedIn
                 </motion.button>
-              </form>
 
-              <div className="relative my-8">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-black/5"></div>
+                <div className="text-center px-10">
+                   <p className="text-[10px] font-black uppercase tracking-widest text-foreground/30 leading-relaxed">
+                     This portal requires <span className="text-primary italic text-[11px]">Professional Identity Verification</span>. Please use the gateway above to automatically sync your student credentials.
+                   </p>
                 </div>
-                <div className="relative flex justify-center text-[9px] font-black uppercase tracking-[0.3em]">
-                  <span className="bg-white px-4 text-foreground/20">Identity Gateway</span>
-                </div>
-              </div>
-
-              <motion.button
-                type="button"
-                onClick={handleLinkedInLogin}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                className="w-full py-4 rounded-2xl bg-white border border-black/5 text-[#0077B5] font-black uppercase text-[10px] tracking-[0.3em] shadow-sm hover:bg-slate-50 transition-all flex items-center justify-center gap-3"
-              >
-                <Linkedin size={16} fill="currentColor" /> Continue with LinkedIn
-              </motion.button>
-
-
-              <div className="mt-8 text-center">
-                <button 
-                  onClick={toggleMode}
-                  className="text-[10px] font-black uppercase tracking-widest text-foreground/30 hover:text-primary transition-colors"
-                >
-                  {isRegistering ? 'Already registered? Sign In' : 'New student? Create an account'}
-                </button>
               </div>
             </div>
 
