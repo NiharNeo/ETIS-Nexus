@@ -51,8 +51,12 @@ export function PhoneVerificationModal({ open, onClose, onVerified, existingPhon
     }
     setSending(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({ phone: fullPhone });
+      const { data, error } = await supabase.functions.invoke('send-otp', {
+        body: { phone: fullPhone }
+      });
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      
       setStep('otp');
       setResendCooldown(30);
       toast.success('OTP Sent', { description: `Verification code sent to +91 ${phone}` });
@@ -87,18 +91,11 @@ export function PhoneVerificationModal({ open, onClose, onVerified, existingPhon
     }
     setVerifying(true);
     try {
-      const { error } = await supabase.auth.verifyOtp({
-        phone: fullPhone,
-        token,
-        type: 'sms',
+      const { data, error } = await supabase.functions.invoke('verify-otp', {
+        body: { phone: fullPhone, otp: token }
       });
       if (error) throw error;
-
-      // Save phone to profiles table
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        await supabase.from('profiles').update({ phone: fullPhone, phone_verified: true }).eq('id', session.user.id);
-      }
+      if (data?.error) throw new Error(data.error);
 
       toast.success('Phone Verified!', {
         description: 'Your number is now linked to your account.',
