@@ -9,7 +9,7 @@ import {
   ScanLine, CheckCircle2, XCircle, AlertTriangle, ChevronDown,
   Users, Camera, CameraOff, Search, Ticket, Zap, Download,
   ShieldCheck, Activity, Clock, Filter, RefreshCw, BarChart2,
-  UserCheck, UserX, CalendarDays, MapPin
+  UserCheck, UserX, CalendarDays, MapPin, Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -20,7 +20,7 @@ interface ScanFeedback { status: ScanStatus; registration?: EventRegistration; }
 
 export default function EventAttendancePage() {
   const { user } = useAuth();
-  const { events, clubs, validateAndCheckIn, getRegistrations, checkInStudent } = useData();
+  const { events, clubs, validateAndCheckIn, getRegistrations, checkInStudent, deleteRegistration } = useData();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -47,6 +47,7 @@ export default function EventAttendancePage() {
   const [manualToken, setManualToken] = useState('');
   const [isValidating, setIsValidating] = useState(false);
   const [checkingInRow, setCheckingInRow] = useState<string | null>(null);
+  const [deletingRow, setDeletingRow] = useState<string | null>(null);
 
   const qrRef = useRef<Html5Qrcode | null>(null);
   const lastScannedRef = useRef('');
@@ -147,6 +148,19 @@ export default function EventAttendancePage() {
     }
     setCheckingInRow(null);
   }, [selectedEventId, checkInStudent]);
+
+  const handleDeleteRegistration = useCallback(async (reg: EventRegistration) => {
+    if (!confirm(`Remove ${reg.userName || 'this attendee'}'s registration? This cannot be undone.`)) return;
+    setDeletingRow(reg.id);
+    const ok = await deleteRegistration(reg.id);
+    if (ok) {
+      setRegistrations(prev => prev.filter(r => r.id !== reg.id));
+      toast.success('Registration removed', { description: `${reg.userName || 'Attendee'} has been unregistered.` });
+    } else {
+      toast.error('Failed to remove registration.');
+    }
+    setDeletingRow(null);
+  }, [deleteRegistration]);
 
   const exportCSV = useCallback(() => {
     const ev = events.find(e => e.id === selectedEventId);
@@ -468,7 +482,7 @@ export default function EventAttendancePage() {
             <table className="w-full text-sm">
               <thead className="sticky top-0 bg-card/80 backdrop-blur-xl border-b border-border/10 z-10">
                 <tr>
-                  {['#', 'Attendee', 'Department', 'Registered', 'Status', 'Action'].map(h => (
+                  {['#', 'Attendee', 'Department', 'Registered', 'Status', 'Action', ''].map(h => (
                     <th key={h} className="px-5 py-3.5 text-left text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30">
                       {h}
                     </th>
@@ -554,20 +568,34 @@ export default function EventAttendancePage() {
 
                       {/* Action */}
                       <td className="px-5 py-4">
-                        {!reg.checkedIn ? (
-                          <button
-                            onClick={() => handleRowCheckIn(reg)}
-                            disabled={checkingInRow === reg.id}
-                            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-[9px] font-black uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all disabled:opacity-50"
-                          >
-                            {checkingInRow === reg.id
-                              ? <Zap size={11} className="animate-pulse" />
-                              : <UserCheck size={11} />}
-                            {checkingInRow === reg.id ? 'Checking...' : 'Check In'}
-                          </button>
-                        ) : (
-                          <span className="text-[10px] font-black text-muted-foreground/20 uppercase tracking-widest">—</span>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {!reg.checkedIn ? (
+                            <button
+                              onClick={() => handleRowCheckIn(reg)}
+                              disabled={checkingInRow === reg.id}
+                              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-[9px] font-black uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all disabled:opacity-50"
+                            >
+                              {checkingInRow === reg.id
+                                ? <Zap size={11} className="animate-pulse" />
+                                : <UserCheck size={11} />}
+                              {checkingInRow === reg.id ? 'Checking...' : 'Check In'}
+                            </button>
+                          ) : (
+                            <span className="text-[10px] font-black text-muted-foreground/20 uppercase tracking-widest">—</span>
+                          )}
+                          {user?.role === 'super_admin' && (
+                            <button
+                              onClick={() => handleDeleteRegistration(reg)}
+                              disabled={deletingRow === reg.id}
+                              title="Remove registration"
+                              className="flex items-center justify-center w-8 h-8 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all disabled:opacity-40"
+                            >
+                              {deletingRow === reg.id
+                                ? <Zap size={11} className="animate-pulse" />
+                                : <Trash2 size={11} />}
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </motion.tr>
                   ))

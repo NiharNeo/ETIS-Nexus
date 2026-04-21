@@ -76,6 +76,8 @@ interface DataContextValue {
   addAnnouncement: (data: Omit<Announcement, 'id' | 'createdAt'>) => Promise<boolean>;
   updateAnnouncement: (id: string, data: Partial<Announcement>) => Promise<boolean>;
   deleteAnnouncement: (id: string) => Promise<void>;
+  // Registration Actions (admin)
+  deleteRegistration: (id: string) => Promise<boolean>;
 }
 
 const DataContext = createContext<DataContextValue | null>(null);
@@ -1083,6 +1085,18 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const deleteRegistration = useCallback(async (id: string): Promise<boolean> => {
+    try {
+      const { error } = await supabase.from('registrations').delete().eq('id', id);
+      if (error) throw error;
+      setRegistrations(prev => prev.filter(r => r.id !== id));
+      return true;
+    } catch (err) {
+      console.error('Failed to delete registration:', err);
+      return false;
+    }
+  }, []);
+
   return (
     <DataContext.Provider
       value={{
@@ -1127,7 +1141,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         addNotification,
         addAnnouncement,
         updateAnnouncement,
-        deleteAnnouncement
+        deleteAnnouncement,
+        deleteRegistration
       }}
     >
       {children}
