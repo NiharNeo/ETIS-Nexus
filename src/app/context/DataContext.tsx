@@ -1150,9 +1150,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
       if (insError) throw insError;
       return mapCertificate(neu);
-    } catch (err) {
-      console.error('Failed to issue certificate:', err);
-      return null;
+    } catch (err: any) {
+      console.error('Failed to issue certificate:', err.message || err);
+      // Re-throw so the UI can catch it or log it
+      throw err;
     }
   }, [mapCertificate]);
 

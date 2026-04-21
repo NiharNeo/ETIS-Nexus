@@ -34,7 +34,7 @@ export default function MyTicketsPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [certData, setCertData] = useState<any>(null);
-  const certRef = useRef<HTMLDivElement>(null);
+  const certRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -67,38 +67,37 @@ export default function MyTicketsPage() {
   const handleDownloadCertificate = async (reg: EventRegistration, eventTitle: string, clubName: string) => {
     setIsGenerating(true);
     const toastId = toast.loading('Generating Credential...', { description: 'Synthesizing institutional certificate.' });
-    
+
     try {
       // 1. Get/Issue certificate metadata
       const cert = await getOrCreateCertificate(reg.id);
       if (!cert) throw new Error('Failed to issue certificate');
+
+      const event = events.find(e => e.id === reg.eventId);
+      const club = clubs.find(c => c.id === event?.clubId);
 
       // 2. Prepare data for template
       setCertData({
         id: cert.id,
         name: cert.studentName,
         eventTitle: cert.eventTitle,
-        clubName: clubName,
+        clubName: cert.department === 'NiharNeo/ETIS-Nexus' ? 'ETIS Nexus' : (club?.name || 'Club'),
+        clubLogo: club?.logo?.startsWith('http') ? club.logo : undefined,
         department: cert.department || 'NiharNeo/ETIS-Nexus',
         date: format(new Date(cert.issuedAt), 'MMMM d, yyyy'),
         verifyUrl: `${window.location.origin}/verify/cert/${cert.verificationHash}`
       });
 
-      // 3. Wait for state to apply and render
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // 3. Wait for canvas to draw (Wait for RAF and state)
+      await new Promise(resolve => setTimeout(resolve, 800));
 
       if (!certRef.current) throw new Error('Generation buffer failed');
 
-      // 4. Capture to canvas
-      const canvas = await html2canvas(certRef.current, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff'
-      });
+      // 4. Capture directly from canvas ref
+      const canvas = certRef.current;
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
 
       // 5. Convert to PDF (A4 Landscape)
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'mm',
@@ -112,9 +111,10 @@ export default function MyTicketsPage() {
       pdf.save(`ETIS-Certificate-${eventTitle.replace(/\s+/g, '-')}.pdf`);
 
       toast.success('Certificate Generated', { id: toastId, description: 'Your achievement has been documented.' });
-    } catch (err) {
+    } catch (err: any) {
       console.error('Certificate generation failed:', err);
-      toast.error('Generation Failed', { id: toastId, description: 'The verification ledger is currently unavailable.' });
+      const errorMsg = err.message || 'The verification ledger is currently unavailable.';
+      toast.error('Generation Failed', { id: toastId, description: errorMsg });
     } finally {
       setIsGenerating(false);
       setCertData(null);
@@ -210,20 +210,19 @@ export default function MyTicketsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.06 }}
-                className={`rounded-[2.5rem] border overflow-hidden transition-all duration-500 ${
-                  reg.checkedIn
+                className={`rounded-[2.5rem] border overflow-hidden transition-all duration-500 ${reg.checkedIn
                     ? 'bg-emerald-500/[0.03] border-emerald-500/20'
                     : isPast
-                    ? 'bg-card/30 border-border/5 opacity-60'
-                    : 'bg-card/60 border-border/10 ring-1 ring-white/5'
-                }`}
+                      ? 'bg-card/30 border-border/5 opacity-60'
+                      : 'bg-card/60 border-border/10 ring-1 ring-white/5'
+                  }`}
               >
                 {/* Ticket Header Row */}
                 <div
                   className="flex items-center gap-5 p-6 cursor-pointer group"
                   onClick={() => setExpandedId(isExpanded ? null : reg.id)}
                 >
-                   {/* Club Logo */}
+                  {/* Club Logo */}
                   <div className="flex-shrink-0">
                     <ClubLogo logo={club?.logo} name={club?.name || 'Club'} size="md" />
                   </div>
@@ -388,10 +387,18 @@ export default function MyTicketsPage() {
       {/* Generation Buffer (Hidden) */}
       <div className="fixed left-[-9999px] top-[-9999px] pointer-events-none overflow-hidden">
         {certData && (
-          <CertificateTemplate 
-            ref={certRef}
-            {...certData}
-          />
+          <>
+            <QRCodeCanvas
+              id="hidden-qr-canvas"
+              value={certData.verifyUrl}
+              size={256}
+              level="H"
+            />
+            <CertificateTemplate
+              ref={certRef}
+              {...certData}
+            />
+          </>
         )}
       </div>
     </div>
