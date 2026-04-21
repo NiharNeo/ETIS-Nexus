@@ -65,8 +65,8 @@ export function EventDetailModal({ event, club, open, onClose }: EventDetailModa
   const handleRegister = async () => {
     if (!user || !event) return;
 
-    // Gate registration behind phone verification
-    if (!user.phoneVerified) {
+    // Gate registration behind phone or professional identity verification
+    if (!user.phoneVerified && user.authProvider !== 'linkedin_oidc') {
       setShowPhoneVerify(true);
       return;
     }

@@ -11,6 +11,7 @@ export interface User {
   department?: string;
   phone?: string;
   phoneVerified?: boolean;
+  authProvider?: string;
   createdAt: string;
   settings?: {
     theme?: string;

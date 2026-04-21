@@ -44,6 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const userData: User = {
         ...profile,
         phoneVerified: profile.phone_verified,
+        authProvider: profile.auth_provider,
         clubIds
       };
 
