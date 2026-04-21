@@ -9,6 +9,8 @@ export interface User {
   avatar?: string;
   clubIds?: string[]; // for club_rep: clubs they manage
   department?: string;
+  phone?: string;
+  phoneVerified?: boolean;
   createdAt: string;
   settings?: {
     theme?: string;

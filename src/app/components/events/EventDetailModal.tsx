@@ -13,6 +13,7 @@ import { Modal } from '../common/Modal';
 import { EventForm } from './EventForm';
 import { ClubLogo } from '../clubs/ClubLogo';
 import { useNavigate } from 'react-router';
+import { PhoneVerificationModal } from '../common/PhoneVerificationModal';
 
 interface EventDetailModalProps {
   event: ClubEvent | null;
@@ -26,8 +27,9 @@ export function EventDetailModal({ event, club, open, onClose }: EventDetailModa
   const [isRegistering, setIsRegistering] = useState(false);
   const [userRegistration, setUserRegistration] = useState<any>(null);
   const { registerForEvent, approveEvent, rejectEvent, submitForApproval, getRegistrations, updateEvent } = useData();
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [showPhoneVerify, setShowPhoneVerify] = useState(false);
   const navigate = useNavigate();
 
   const qrPayload = userRegistration
@@ -62,6 +64,13 @@ export function EventDetailModal({ event, club, open, onClose }: EventDetailModa
 
   const handleRegister = async () => {
     if (!user || !event) return;
+
+    // Gate registration behind phone verification
+    if (!user.phoneVerified) {
+      setShowPhoneVerify(true);
+      return;
+    }
+
     setIsRegistering(true);
     const registration = await registerForEvent(event.id);
     if (registration) {
@@ -420,6 +429,17 @@ export function EventDetailModal({ event, club, open, onClose }: EventDetailModa
           </Modal>
         </>
       )}
+      <PhoneVerificationModal
+        open={showPhoneVerify}
+        onClose={() => setShowPhoneVerify(false)}
+        onVerified={async () => {
+          await refreshProfile();
+          // After verification, we could automatically trigger registration,
+          // but manually clicking again is safer to ensure user context is fully updated.
+          toast.success('Identity Synchronized', { description: 'You can now proceed with registration.' });
+        }}
+        existingPhone={user?.phone}
+      />
     </AnimatePresence>
   );
 }
