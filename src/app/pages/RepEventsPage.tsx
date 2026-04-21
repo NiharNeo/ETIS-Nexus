@@ -7,6 +7,7 @@ import { EventDetailModal } from '../components/events/EventDetailModal';
 import { Modal } from '../components/common/Modal';
 import { EventForm } from '../components/events/EventForm';
 import { StatusBadge } from '../components/common/StatusBadge';
+import { ClubLogo } from '../components/clubs/ClubLogo';
 import type { ClubEvent, EventFormData } from '../types';
 import {
   PlusCircle,
@@ -271,9 +272,9 @@ export default function RepEventsPage() {
                      <Zap size={140} className="text-primary" />
                   </div>
                   
-                  <div className="w-20 h-20 rounded-[1.5rem] bg-sidebar flex items-center justify-center text-5xl shadow-inner border border-border/10 shrink-0 group-hover:scale-110 transition-transform relative overflow-hidden">
+                  <div className="w-20 h-20 rounded-[1.5rem] bg-sidebar flex items-center justify-center shadow-inner border border-border/10 shrink-0 group-hover:scale-110 transition-transform relative overflow-hidden">
                      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-                     <span className="relative z-10">{club?.logo}</span>
+                     <ClubLogo logo={club?.logo} name={club?.name || ''} size="lg" className="w-full h-full rounded-none border-none shadow-none bg-transparent" />
                   </div>
 
                   <div className="flex-1 min-w-0 space-y-3">

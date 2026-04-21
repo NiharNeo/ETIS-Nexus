@@ -3,6 +3,7 @@ import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router';
 import { StatusBadge, ModeBadge } from '../components/common/StatusBadge';
+import { ClubLogo } from '../components/clubs/ClubLogo';
 import { EventDetailModal } from '../components/events/EventDetailModal';
 import { Modal } from '../components/common/Modal';
 import { EventForm } from '../components/events/EventForm';
@@ -315,15 +316,13 @@ export default function AdminEventsPage() {
                         </div>
                       </td>
                       <td className="px-5 py-8 hidden md:table-cell">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-zinc-100 flex items-center justify-center text-xl border border-black/5 shadow-inner">
-                             {club?.logo}
-                          </div>
-                          <p className="text-sm font-black text-black">
-                            {club?.name}
-                          </p>
-                        </div>
-                      </td>
+                         <div className="flex items-center gap-3">
+                           <ClubLogo logo={club?.logo} name={club?.name || ''} size="sm" />
+                           <p className="text-sm font-black text-black">
+                             {club?.name}
+                           </p>
+                         </div>
+                       </td>
                       <td className="px-5 py-8 hidden lg:table-cell">
                         <div className="space-y-1">
                            <div className="flex items-center gap-2 text-black/60 font-bold text-xs uppercase tracking-tighter">

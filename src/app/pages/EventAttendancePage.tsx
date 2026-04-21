@@ -254,7 +254,7 @@ export default function EventAttendancePage() {
             { label: 'Checked In', value: checkedCount, icon: <CheckCircle2 size={16} />, color: 'text-emerald-500' },
             { label: 'Remaining', value: registrations.length - checkedCount, icon: <Clock size={16} />, color: 'text-primary' },
             { label: 'Attendance Rate', value: `${rate}%`, icon: <BarChart2 size={16} />, color: rate >= 75 ? 'text-emerald-500' : rate >= 40 ? 'text-amber-500' : 'text-rose-500' },
-            { label: 'Event', value: selectedClub?.logo ? `${selectedClub.logo} ${selectedEvent?.title?.split(' ').slice(0, 2).join(' ')}` : selectedEvent?.title?.split(' ').slice(0, 2).join(' ') || '—', icon: <CalendarDays size={16} />, color: 'text-foreground/60' },
+            { label: 'Event', value: selectedEvent?.title?.split(' ').slice(0, 3).join(' ') || '—', icon: <CalendarDays size={16} />, color: 'text-foreground/60' },
           ].map((stat, i) => (
             <div key={i} className="p-5 rounded-[2rem] bg-card/60 backdrop-blur-xl border border-border/10 ring-1 ring-white/5 space-y-2">
               <div className="flex items-center justify-between">
