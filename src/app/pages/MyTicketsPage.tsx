@@ -4,6 +4,7 @@ import { useData } from '../context/DataContext';
 import type { EventRegistration } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
+import { ClubLogo } from '../components/clubs/ClubLogo';
 import {
   Ticket,
   Download,
@@ -157,13 +158,13 @@ export default function MyTicketsPage() {
                   className="flex items-center gap-5 p-6 cursor-pointer group"
                   onClick={() => setExpandedId(isExpanded ? null : reg.id)}
                 >
-                  {/* Club Logo */}
-                  <div className="w-14 h-14 rounded-2xl bg-sidebar flex items-center justify-center text-2xl border border-border/10 flex-shrink-0">
-                    {club?.logo || '🏛️'}
+                   {/* Club Logo */}
+                  <div className="flex-shrink-0">
+                    <ClubLogo logo={club?.logo} name={club?.name || 'Club'} size="md" />
                   </div>
 
                   {/* Event Info */}
-                  <div className="flex-1 min-w-0 space-y-1">
+                  <div className="flex-1 min-w-0 overflow-hidden space-y-1">
                     <p className="text-[9px] font-black uppercase tracking-[0.3em] text-primary/60">
                       {club?.name || 'Unknown Club'}
                     </p>
