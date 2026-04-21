@@ -91,87 +91,79 @@ export default function ClubsPage() {
       >
         <div className="space-y-6 max-w-3xl">
           <div className="flex items-center gap-3">
-             <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shadow-[0_0_20px_rgba(37,99,235,0.2)]">
+             <div className="w-12 h-12 bg-muted flex items-center justify-center text-primary border border-border rounded-none">
                <Building2 size={24} />
              </div>
              <div>
-               <p className="text-primary font-black uppercase tracking-[0.4em]" style={{ fontSize: '10px' }}>
+               <p className="text-primary font-bold uppercase tracking-[0.4em]" style={{ fontSize: '10px' }}>
                  Institutional Nexus Protocol
                </p>
-               <h1 className="text-5xl lg:text-7xl font-black tracking-tighter text-foreground leading-none">
-                 Club <span className="text-muted-foreground/20 italic">Nexus</span>.
+               <h1 className="text-5xl lg:text-7xl font-normal tracking-tighter text-foreground leading-none" style={{ fontFamily: 'var(--font-display)' }}>
+                 Club <span className="underline decoration-border italic">Nexus</span>.
                </h1>
              </div>
           </div>
-          <p className="text-xl text-muted-foreground font-medium leading-relaxed max-w-2xl">
+          <p className="text-xl text-foreground/70 font-medium leading-relaxed max-w-2xl">
             Discover the university's elite digital and physical associations. 
             Connect with institutional hubs and lead the next wave of campus innovation.
           </p>
         </div>
         
         {/* Real-time Sector Telemetry */}
-        <div className="flex items-center gap-8 p-8 rounded-[3rem] bg-card/60 backdrop-blur-3xl border border-border/10 shadow-3xl ring-1 ring-white/5 relative overflow-hidden group">
-           <div className="absolute top-0 right-0 p-8 opacity-[0.02] group-hover:rotate-12 transition-transform duration-1000">
-              <Sparkles size={100} className="text-primary" />
-           </div>
-           
-           <div className="px-6 text-center border-r border-border/10">
-             <p className="text-[10px] text-muted-foreground/40 font-black uppercase tracking-widest mb-1.5">Foundations</p>
+        <div className="flex items-center gap-8 p-8 bg-card border border-border rounded-none group">
+           <div className="px-6 text-center border-r border-border">
+             <p className="text-[10px] text-foreground/50 font-bold uppercase tracking-[0.2em] mb-1.5">Foundations</p>
              <div className="flex items-center justify-center gap-2">
-                <span className="text-primary font-black text-4xl tracking-tighter leading-none">{approvedClubs.length}</span>
-                <TrendingUp size={16} className="text-emerald-500 mb-1" />
+                <span className="text-primary font-normal text-4xl tracking-tighter leading-none" style={{ fontFamily: 'var(--font-display)' }}>{approvedClubs.length}</span>
              </div>
            </div>
            <div className="px-6 text-center">
-             <p className="text-[10px] text-muted-foreground/40 font-black uppercase tracking-widest mb-1.5">Active Sectors</p>
+             <p className="text-[10px] text-foreground/50 font-bold uppercase tracking-[0.2em] mb-1.5">Active Sectors</p>
              <div className="flex items-center justify-center gap-2">
-                <span className="text-foreground font-black text-4xl tracking-tighter leading-none">{departments.length}</span>
-                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.8)] mb-1" />
+                <span className="text-foreground font-normal text-4xl tracking-tighter leading-none" style={{ fontFamily: 'var(--font-display)' }}>{departments.length}</span>
              </div>
            </div>
            {user?.role === 'super_admin' && (
              <motion.button 
-               whileHover={{ scale: 1.1 }}
-               whileTap={{ scale: 0.9 }}
+               whileHover={{ scale: 1.05 }}
+               whileTap={{ scale: 0.95 }}
                onClick={() => setIsAddClubModalOpen(true)}
-               className="w-14 h-14 rounded-2xl bg-black flex items-center justify-center shadow-[0_15px_30px_rgba(0,0,0,0.2)] hover:bg-zinc-800 transition-all relative overflow-hidden group/btn"
+               className="w-14 h-14 bg-foreground flex items-center justify-center border border-foreground hover:bg-primary hover:border-primary transition-all rounded-none"
                title="Create New Club"
              >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700" />
-                <Plus size={24} className="text-white relative z-10" />
+                <Plus size={24} className="text-white" />
              </motion.button>
            )}
         </div>
       </motion.div>
 
       {/* Discovery Console (Search & Filter Logic) */}
-      <div className="flex flex-col lg:flex-row gap-8 items-center justify-between p-6 rounded-[3.5rem] bg-card/60 backdrop-blur-3xl border border-border/10 shadow-xl ring-1 ring-white/5">
+      <div className="flex flex-col lg:flex-row gap-8 items-center justify-between p-6 bg-card border border-border shadow-none rounded-none">
         <div className="relative w-full lg:w-[45%] group">
-          <div className="absolute -inset-1 bg-gradient-to-r from-primary/10 to-transparent rounded-[2rem] blur opacity-0 group-focus-within:opacity-100 transition duration-500" />
           <div className="relative flex items-center">
-            <Search size={24} className="absolute left-8 text-muted-foreground/20 group-focus-within:text-primary transition-colors duration-300" />
+            <Search size={24} className="absolute left-6 text-foreground/40 group-focus-within:text-primary transition-colors duration-300" />
             <input
               type="text"
               placeholder="Search the nexus by organization signature..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-20 pr-10 py-6 rounded-[2.5rem] bg-sidebar border border-border/10 text-lg font-bold tracking-tight text-foreground placeholder-muted-foreground/10 focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all shadow-inner"
+              className="w-full pl-16 pr-10 py-4 bg-transparent border-b border-input text-lg font-bold tracking-tight text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-primary transition-all shadow-none rounded-none"
             />
           </div>
         </div>
         
-        <div className="flex items-center gap-4 p-2 bg-sidebar rounded-[2rem] border border-border/5 shadow-inner overflow-x-auto no-scrollbar max-w-full">
-           <div className="px-6 flex items-center gap-3 border-r border-border/10">
-              <Filter size={18} className="text-primary/40" />
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 whitespace-nowrap">Sector Select</span>
+        <div className="flex items-center gap-4 p-2 bg-muted border border-border max-w-full rounded-none">
+           <div className="px-6 flex items-center gap-3 border-r border-border">
+              <Filter size={18} className="text-foreground/40" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-foreground/40 whitespace-nowrap">Sector Select</span>
            </div>
-           <div className="flex items-center gap-3">
+           <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-1">
              <button
                onClick={() => setFilterDept('')}
-               className={`px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${
+               className={`px-8 py-3 text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-300 border rounded-none ${
                  filterDept === '' 
-                   ? 'bg-primary text-white shadow-xl px-12' 
-                   : 'text-muted-foreground/40 hover:text-foreground hover:bg-white/5'
+                   ? 'bg-primary text-white border-primary shadow-none' 
+                   : 'text-foreground/60 border-transparent hover:text-foreground hover:bg-card'
                }`}
              >
                Unified Hubs
@@ -180,10 +172,10 @@ export default function ClubsPage() {
                <button
                  key={dept}
                  onClick={() => setFilterDept(dept)}
-                 className={`px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${
+                 className={`px-8 py-3 text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-300 border rounded-none whitespace-nowrap ${
                    filterDept === dept
-                     ? 'bg-primary text-white shadow-xl px-12'
-                     : 'text-muted-foreground/40 hover:text-foreground hover:bg-white/5'
+                     ? 'bg-primary text-white border-primary shadow-none'
+                     : 'text-foreground/60 border-transparent hover:text-foreground hover:bg-card'
                  }`}
                >
                  {dept} Sector

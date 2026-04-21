@@ -149,59 +149,59 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="p-8 space-y-8">
-        <Skeleton className="h-20 w-1/3 rounded-2xl" />
+      <div className="p-8 space-y-8 bg-background">
+        <Skeleton className="h-20 w-1/3 rounded-none" />
         <div className="grid grid-cols-3 gap-6 auto-rows-[20rem]">
-          <Skeleton className="col-span-2 rounded-3xl" />
-          <Skeleton className="col-span-1 rounded-3xl" />
-          <Skeleton className="col-span-1 rounded-3xl" />
-          <Skeleton className="col-span-2 rounded-3xl" />
+          <Skeleton className="col-span-2 rounded-none" />
+          <Skeleton className="col-span-1 rounded-none" />
+          <Skeleton className="col-span-1 rounded-none" />
+          <Skeleton className="col-span-2 rounded-none" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-8 max-w-[1600px] mx-auto space-y-10">
-      {/* Black Text Header */}
+    <div className="p-8 max-w-[1600px] mx-auto space-y-10 bg-background min-h-screen">
+      {/* Editorial Header Dimension */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-black/10 pb-10"
+        className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border pb-10"
       >
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-lg bg-black text-white text-[10px] font-black uppercase tracking-widest">
+            <span className="px-3 py-1 bg-foreground text-card text-[10px] font-bold uppercase tracking-[0.2em] rounded-none">
               System Dashboard
             </span>
           </div>
-          <h1 className="text-5xl lg:text-7xl font-black text-black tracking-tighter leading-none">
-            {greeting()}, <span className="underline decoration-black/10">{user?.name.replace(/^(Dr\.|Mr\.|Ms\.|Mrs\.)\s+/i, '').split(' ')[0]}</span>.
+          <h1 className="text-5xl lg:text-7xl font-normal text-foreground tracking-tighter leading-none" style={{ fontFamily: 'var(--font-display)' }}>
+            {greeting()}, <span className="underline decoration-border">{user?.name.replace(/^(Dr\.|Mr\.|Ms\.|Mrs\.)\s+/i, '').split(' ')[0]}</span>.
           </h1>
-          <p className="text-black/60 font-medium text-xl">
+          <p className="text-foreground/70 font-medium text-xl" style={{ fontFamily: 'var(--font-sans)' }}>
              There are {stats.upcomingCount} active events scheduled on campus.
           </p>
         </div>
         <div className="flex items-center gap-4 relative z-50">
           <button
             onClick={() => setIsAestheticsModalOpen(true)}
-            className="px-6 py-4 rounded-2xl bg-zinc-100 text-black/60 hover:text-black hover:bg-zinc-200 transition-all flex items-center gap-2 group"
+            className="px-6 py-4 bg-muted text-foreground/70 hover:text-foreground border border-border hover:bg-surface_container transition-all flex items-center gap-2 group rounded-none"
             title="Recalibrate Interface"
           >
             <Settings2 size={18} className="group-hover:rotate-90 transition-transform duration-500" />
-            <span className="hidden lg:inline text-[10px] font-black uppercase tracking-widest">Recalibrate</span>
+            <span className="hidden lg:inline text-[10px] font-bold uppercase tracking-[0.2em]">Recalibrate</span>
           </button>
 
           <button
             onClick={() => { console.log('Browse Events clicked'); navigate('/events'); }}
-            className="px-8 py-4 rounded-2xl bg-white border-2 border-black text-black font-black uppercase text-xs tracking-widest hover:bg-zinc-50 transition-all shadow-sm"
+            className="px-8 py-4 bg-transparent border-2 border-foreground text-foreground font-bold uppercase text-xs tracking-[0.2em] hover:bg-muted transition-all shadow-none rounded-none"
           >
             Browse Events
           </button>
           {(user?.role === 'super_admin' || user?.role === 'club_rep') && (
             <button
               onClick={() => { console.log('Create Event clicked'); navigate('/rep/events/new'); }}
-              className="px-8 py-4 rounded-2xl bg-black text-white font-black uppercase text-xs tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+              className="px-8 py-4 bg-primary text-white border border-primary font-bold uppercase text-xs tracking-[0.2em] shadow-none hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center gap-2 rounded-none"
             >
               <Plus size={18} /> Create Event
             </button>
@@ -211,7 +211,7 @@ export default function DashboardPage() {
             <button
               id="dashboard-create-club-btn"
               onClick={() => { console.log('Create Club button clicked'); setIsAddClubModalOpen(true); }}
-              className="px-8 py-4 rounded-2xl bg-white border-2 border-black text-black font-black uppercase text-xs tracking-widest hover:bg-zinc-50 transition-all flex items-center gap-2 relative z-50"
+              className="px-8 py-4 bg-transparent border border-foreground text-foreground font-bold uppercase text-xs tracking-[0.2em] hover:bg-muted transition-all flex items-center gap-2 relative z-50 rounded-none"
             >
               <Building2 size={18} /> Create Club
             </button>
@@ -220,100 +220,100 @@ export default function DashboardPage() {
       </motion.div>
 
       {/* Bento Grid Layout - High Contrast */}
-      <BentoGrid>
+      <BentoGrid className="rounded-none">
         {widgets.activity && (
           <BentoCard
-            className="md:col-span-2 bg-white border border-black/5"
+            className="md:col-span-2 bg-card border border-border rounded-none shadow-none"
             title="Campus Activity"
             description="A summary of university engagement metrics."
             header={
-              <div className="flex-1 p-8 flex items-center justify-around bg-zinc-50/50">
+              <div className="flex-1 p-8 flex items-center justify-around bg-muted border-b border-border">
                 <div className="text-center space-y-1">
-                  <p className="text-black/40 font-black text-[10px] uppercase tracking-widest">Total Clubs</p>
-                  <h3 className="text-6xl font-black text-black tracking-tighter">{stats.totalClubs}</h3>
+                  <p className="text-foreground/50 font-bold text-[10px] uppercase tracking-[0.2em]">Total Clubs</p>
+                  <h3 className="text-6xl font-normal text-foreground tracking-tighter" style={{ fontFamily: 'var(--font-display)' }}>{stats.totalClubs}</h3>
                 </div>
-                <div className="w-px h-16 bg-black/10" />
+                <div className="w-px h-16 bg-border" />
                 <div className="text-center space-y-1">
-                  <p className="text-black/40 font-black text-[10px] uppercase tracking-widest">Live Events</p>
-                  <h3 className="text-6xl font-black text-black tracking-tighter">{stats.totalEvents}</h3>
+                  <p className="text-foreground/50 font-bold text-[10px] uppercase tracking-[0.2em]">Live Events</p>
+                  <h3 className="text-6xl font-normal text-foreground tracking-tighter" style={{ fontFamily: 'var(--font-display)' }}>{stats.totalEvents}</h3>
                 </div>
-                <div className="w-px h-16 bg-black/10" />
+                <div className="w-px h-16 bg-border" />
                 <div className="text-center space-y-1">
-                  <p className="text-black/40 font-black text-[10px] uppercase tracking-widest">This Week</p>
-                  <h3 className="text-6xl font-black text-black tracking-tighter">{stats.thisWeek}</h3>
+                  <p className="text-foreground/50 font-bold text-[10px] uppercase tracking-[0.2em]">This Week</p>
+                  <h3 className="text-6xl font-normal text-foreground tracking-tighter" style={{ fontFamily: 'var(--font-display)' }}>{stats.thisWeek}</h3>
                 </div>
               </div>
             }
-            icon={<Activity size={20} className="text-black" />}
+            icon={<Activity size={20} className="text-foreground" />}
           />
         )}
 
         {widgets.growth && (
           <BentoCard
-            className="md:col-span-1 bg-white border border-black/5"
+            className="md:col-span-1 bg-card border border-border rounded-none shadow-none"
             title="Monthly Growth"
             description="Approved events over the last six months."
             header={
-              <div className="flex-1 w-full h-full p-6 pt-10 overflow-hidden bg-zinc-50/30">
+              <div className="flex-1 w-full h-full p-6 pt-10 overflow-hidden bg-muted border-b border-border">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData}>
-                    <Bar dataKey="approved" radius={[4, 4, 0, 0]}>
+                    <Bar dataKey="approved" radius={[0, 0, 0, 0]}>
                       {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={index === chartData.length - 1 ? 'var(--primary)' : 'rgba(0,0,0,0.1)'} />
+                        <Cell key={`cell-${index}`} fill={index === chartData.length - 1 ? 'var(--primary)' : 'var(--border)'} />
                       ))}
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             }
-            icon={<BarChart2 size={20} className="text-black" />}
+            icon={<BarChart2 size={20} className="text-foreground" />}
           />
         )}
 
         {widgets.updates && (
           <BentoCard
-            className="md:col-span-1 bg-white border border-black/5"
+            className="md:col-span-1 bg-card border border-border rounded-none shadow-none"
             title="Recent Updates"
             description="Latest system notifications."
             header={
-              <div className="flex-1 p-6 space-y-4 overflow-y-auto max-h-[300px]">
+              <div className="flex-1 p-6 space-y-4 overflow-y-auto max-h-[300px] border-b border-border">
                 {recentActivity.map((event) => (
-                  <div key={event.id} className="flex items-center gap-3 p-4 rounded-2xl bg-zinc-50 hover:bg-black hover:text-white transition-all cursor-pointer group border border-black/5">
-                    <div className="w-2 h-2 rounded-full bg-black group-hover:bg-white" />
+                  <div key={event.id} className="flex items-center gap-3 p-4 bg-muted hover:bg-primary hover:text-white transition-all cursor-pointer group border border-border rounded-none">
+                    <div className="w-2 h-2 bg-foreground group-hover:bg-white" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-black truncate uppercase tracking-tight">{event.title}</p>
-                      <p className="text-[9px] font-bold opacity-40 group-hover:opacity-60 uppercase">{format(new Date(event.updatedAt), 'MMM d • HH:mm')}</p>
+                      <p className="text-xs font-bold truncate uppercase tracking-tight" style={{ fontFamily: 'var(--font-sans)', letterSpacing: '0.05em' }}>{event.title}</p>
+                      <p className="text-[9px] font-bold opacity-50 group-hover:opacity-80 uppercase">{format(new Date(event.updatedAt), 'MMM d • HH:mm')}</p>
                     </div>
                     <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 transition-all" />
                   </div>
                 ))}
               </div>
             }
-            icon={<Globe size={20} className="text-black" />}
+            icon={<Globe size={20} className="text-foreground" />}
           />
         )}
 
         {widgets.events && (
           <BentoCard
-            className="md:col-span-2 bg-white border border-black/5"
+            className="md:col-span-2 bg-card border border-border rounded-none shadow-none"
             title="Major Events"
             description="High-priority events coming up in the university."
             header={
-              <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 p-6 bg-zinc-50/20">
+              <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 p-6 bg-muted border-b border-border">
                 {upcomingEvents.map((event) => {
                   const club = clubs.find(c => c.id === event.clubId);
                   return (
                     <div
                       key={event.id}
                       onClick={() => setSelectedEvent(event)}
-                      className="p-6 rounded-[2rem] bg-white border border-black/5 hover:border-black transition-all cursor-pointer group shadow-sm"
+                      className="p-6 bg-card border border-border hover:border-primary transition-all cursor-pointer group shadow-none rounded-none"
                     >
                       <div className="flex items-center gap-3 mb-4">
                         <ClubLogo logo={club?.logo} name={club?.name || ''} size="sm" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-black/40">{club?.name}</span>
+                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/50">{club?.name}</span>
                       </div>
-                      <h4 className="text-lg font-black tracking-tight text-black mb-2 leading-none">{event.title}</h4>
-                      <div className="flex items-center gap-2 text-[10px] text-black font-black uppercase tracking-widest opacity-30">
+                      <h4 className="text-xl font-normal tracking-tight text-foreground mb-2 leading-none" style={{ fontFamily: 'var(--font-display)' }}>{event.title}</h4>
+                      <div className="flex items-center gap-2 text-[10px] text-foreground font-bold uppercase tracking-[0.2em] opacity-40">
                         <CalendarDays size={12} />
                         {format(new Date(event.date), 'MMMM d, yyyy')}
                       </div>
@@ -322,7 +322,7 @@ export default function DashboardPage() {
                 })}
               </div>
             }
-            icon={<Sparkles size={20} className="text-black" />}
+            icon={<Sparkles size={20} className="text-foreground" />}
           />
         )}
       </BentoGrid>

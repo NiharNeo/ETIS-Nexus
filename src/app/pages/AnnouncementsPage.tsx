@@ -6,6 +6,20 @@ import { format } from 'date-fns';
 import { Modal } from '../components/common/Modal';
 import { toast } from 'sonner';
 
+const linkify = (text: string) => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  return text.split(urlRegex).map((part, i) => {
+    if (part.match(urlRegex)) {
+      return (
+        <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-primary font-bold hover:underline break-all">
+          {part}
+        </a>
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
+};
+
 export default function AnnouncementsPage() {
   const { user } = useAuth();
   const { announcements, addAnnouncement, updateAnnouncement, deleteAnnouncement } = useData();
@@ -109,8 +123,8 @@ export default function AnnouncementsPage() {
                   {ann.title}
                 </h3>
                 
-                <p className="text-muted-foreground leading-relaxed text-lg">
-                  {ann.content}
+                <p className="text-muted-foreground leading-relaxed text-lg whitespace-pre-wrap">
+                  {linkify(ann.content)}
                 </p>
 
                 <div className="pt-6 flex items-center justify-between border-t border-border/20">

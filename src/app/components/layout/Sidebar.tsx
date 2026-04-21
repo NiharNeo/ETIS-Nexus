@@ -132,26 +132,26 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   };
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-sidebar/50 backdrop-blur-2xl">
+    <div className="flex flex-col h-full bg-sidebar">
       {/* Branding */}
-      <div className="px-8 py-10">
+      <div className="px-8 py-10 border-b border-border/50">
         <div className="flex flex-col">
-          <h1 className="text-sidebar-foreground text-2xl tracking-tighter" style={{ fontWeight: 900 }}>
-            ETIS <span className="text-primary italic">Nexus</span>.
+          <h1 className="text-foreground tracking-tight leading-none" style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', fontStyle: 'italic' }}>
+            ETIS <br/><span className="text-primary not-italic font-bold">Nexus</span>.
           </h1>
-          <div className="flex items-center gap-1.5 mt-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-            <p className="text-muted-foreground font-medium uppercase tracking-[0.2em]" style={{ fontSize: '9px' }}>
-              Intelligence Sector Active
+          <div className="flex items-center gap-2 mt-6">
+            <span className="w-2 h-2 bg-primary"></span>
+            <p className="text-foreground uppercase tracking-[0.2em] font-medium" style={{ fontSize: '9px' }}>
+              Intelligence Sector
             </p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 overflow-y-auto space-y-6 pb-8">
+      <nav className="flex-1 px-4 overflow-y-auto space-y-6 py-8">
         <div>
-          <p className="px-4 mb-4 text-muted-foreground/50 uppercase tracking-[0.2em] font-bold" style={{ fontSize: '10px' }}>
+          <p className="px-4 mb-4 text-foreground/50 uppercase tracking-[0.2em] font-bold" style={{ fontSize: '10px' }}>
             Main Menu
           </p>
           <div className="space-y-1">
@@ -161,24 +161,21 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
                 to={item.to}
                 onClick={onMobileClose}
                 className={({ isActive }) =>
-                  `flex items-center gap-3.5 px-4 py-3 rounded-2xl transition-all duration-300 group relative ${
+                  `flex items-center gap-3.5 px-4 py-3 border-l-[3px] transition-all duration-300 group relative ${
                     isActive
-                      ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-[0_10px_20px_-10px_rgba(37,99,235,0.2)]'
-                      : 'text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
+                      ? 'bg-muted border-primary text-primary font-bold'
+                      : 'border-transparent text-foreground/70 hover:text-foreground hover:bg-muted/50'
                   }`
                 }
               >
                 {({ isActive }) => (
                   <>
-                    <span className={`transition-transform duration-300 group-hover:scale-110 ${isActive ? 'text-primary' : ''}`}>
+                    <span className={`transition-transform duration-300 group-hover:-translate-y-0.5 ${isActive ? 'text-primary' : ''}`}>
                       {item.icon}
                     </span>
-                    <span className="font-semibold tracking-tight" style={{ fontSize: '14px' }}>
+                    <span className="font-semibold tracking-tight uppercase" style={{ fontSize: '11px', letterSpacing: '0.05em' }}>
                       {item.label}
                     </span>
-                    {isActive && (
-                      <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(37,99,235,0.6)]" />
-                    )}
                   </>
                 )}
               </NavLink>
@@ -187,46 +184,43 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
         </div>
 
         {/* Categories Placeholder */}
-        <div>
-          <p className="px-4 mb-4 text-muted-foreground/50 uppercase tracking-[0.2em] font-bold" style={{ fontSize: '10px' }}>
-            Explore
+        <div className="mt-8">
+          <p className="px-4 mb-4 text-foreground/50 uppercase tracking-[0.2em] font-bold" style={{ fontSize: '10px' }}>
+            Explore Categories
           </p>
           <div className="px-4 space-y-3">
-            <div className="flex items-center gap-3 text-sidebar-foreground/40 hover:text-sidebar-foreground cursor-pointer transition-colors group">
-              <div className="w-2 h-2 rounded-sm bg-blue-500/50 group-hover:bg-blue-500 transition-colors"></div>
-              <span className="text-xs font-medium">Tech & Engineering</span>
+            <div className="flex items-center gap-3 text-foreground/70 hover:text-primary cursor-pointer transition-colors group">
+              <div className="w-2 h-2 border border-foreground/30 group-hover:bg-primary group-hover:border-primary transition-colors"></div>
+              <span className="text-xs font-medium uppercase tracking-wider" style={{fontSize: '10px'}}>Tech & Engineering</span>
             </div>
-            <div className="flex items-center gap-3 text-sidebar-foreground/40 hover:text-sidebar-foreground cursor-pointer transition-colors group">
-              <div className="w-2 h-2 rounded-sm bg-purple-500/50 group-hover:bg-purple-500 transition-colors"></div>
-              <span className="text-xs font-medium">Arts & Culture</span>
+            <div className="flex items-center gap-3 text-foreground/70 hover:text-primary cursor-pointer transition-colors group">
+              <div className="w-2 h-2 border border-foreground/30 group-hover:bg-primary group-hover:border-primary transition-colors"></div>
+              <span className="text-xs font-medium uppercase tracking-wider" style={{fontSize: '10px'}}>Arts & Culture</span>
             </div>
-            <div className="flex items-center gap-3 text-sidebar-foreground/40 hover:text-sidebar-foreground cursor-pointer transition-colors group">
-              <div className="w-2 h-2 rounded-sm bg-emerald-500/50 group-hover:bg-emerald-500 transition-colors"></div>
-              <span className="text-xs font-medium">Sports & Fitness</span>
+            <div className="flex items-center gap-3 text-foreground/70 hover:text-primary cursor-pointer transition-colors group">
+              <div className="w-2 h-2 border border-foreground/30 group-hover:bg-primary group-hover:border-primary transition-colors"></div>
+              <span className="text-xs font-medium uppercase tracking-wider" style={{fontSize: '10px'}}>Sports & Fitness</span>
             </div>
           </div>
         </div>
       </nav>
 
       {/* Footer Profile */}
-      <div className="p-4 bg-sidebar-accent/30 border-t border-sidebar-border/50 backdrop-blur-xl">
+      <div className="p-4 bg-sidebar border-t border-border/50">
         {user && (
-          <div className="flex items-center gap-4 p-3 rounded-2xl bg-background/40 ring-1 ring-white/5 shadow-inner mb-3">
+          <div className="flex items-center gap-4 p-3 bg-muted border border-border mb-3">
             <div className="relative">
               <img
                 src={user.avatar}
                 alt={user.name}
-                className="w-10 h-10 rounded-xl object-cover ring-2 ring-primary/20"
+                className="w-10 h-10 object-cover border border-border grayscale hover:grayscale-0 transition-all"
               />
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-sidebar flex items-center justify-center">
-                <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></div>
-              </div>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sidebar-foreground font-bold truncate tracking-tight" style={{ fontSize: '14px' }}>
+              <p className="text-foreground font-bold truncate tracking-tight" style={{ fontSize: '14px', fontFamily: 'var(--font-display)' }}>
                 {user.name}
               </p>
-              <p className="text-muted-foreground/70 truncate uppercase tracking-widest font-black" style={{ fontSize: '8px' }}>
+              <p className="text-foreground/70 truncate uppercase tracking-widest" style={{ fontSize: '9px' }}>
                 {user.role.replace('_', ' ')}
               </p>
             </div>
@@ -234,10 +228,10 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
         )}
         <button
           onClick={handleLogout}
-          className="flex items-center justify-center gap-2.5 w-full py-3 rounded-xl text-sidebar-foreground/60 hover:text-rose-500 hover:bg-rose-500/10 transition-all duration-300 font-bold text-xs uppercase tracking-widest"
+          className="flex items-center justify-center gap-2.5 w-full py-3 border border-border hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 font-bold text-xs uppercase tracking-widest"
         >
           <LogOut size={16} />
-          Sign Out Portal
+          Sign Out
         </button>
       </div>
     </div>

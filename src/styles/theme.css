@@ -1,89 +1,56 @@
 :root {
   --font-size: 16px;
-  --background: #fdfdfd;       /* Soft, slightly warm off-white for reduced eye strain */
-  --foreground: #020617;       /* Slate 950 for extreme readability header text */
-  --card: #ffffff;
-  --card-foreground: #0f172a;  /* Slate 900 for card body text */
+  
+  /* The Curated Specimen Palette */
+  --background: #fef9ed;       /* surface */
+  --foreground: #1d1c15;       /* on_surface */
+  
+  --card: #ffffff;             /* surface_container_lowest */
+  --card-foreground: #1d1c15;  
+  
   --popover: #ffffff;
-  --popover-foreground: #020617;
-  --primary: #2563eb;          /* Clear Blue 600 */
-  --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;        /* Slate 100 */
-  --secondary-foreground: #0f172a;
-  --muted: #f8fafc;            /* Slate 50 */
-  --muted-foreground: #64748b; /* Slate 500 */
-  --accent: #eff6ff;           /* Blue 50 */
-  --accent-foreground: #2563eb;
+  --popover-foreground: #1d1c15;
+  
+  --primary: #990411;          
+  --primary-foreground: #ffffff; 
+  
+  --secondary: #795900;        
+  --secondary-foreground: #ffffff;
+  
+  --muted: #f8f3e7;            /* surface_container_low */
+  --muted-foreground: #8f706c; /* outline as placeholder/muted text */
+  
+  --accent: #f2ede2;           /* surface_container */
+  --accent-foreground: #990411;
+  
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #e2e8f0;           /* Slate 200 */
-  --input: #e2e8f0;
-  --input-background: #ffffff;
-  --switch-background: #cbd5e1;
+  
+  --border: rgba(227, 190, 186, 0.15); /* outline_variant at 15% opacity for ghost border */
+  --input: #8f706c;            /* outline */
+  --input-background: transparent;
+  
+  --switch-background: #ede8dc;
+  
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: #2563eb;
-  --radius: 1rem;              /* Slightly softer rounding for a friendlier modern feel */
-
-  --sidebar: #fdfdfd;
-  --sidebar-foreground: #0f172a;
-  --sidebar-primary: #2563eb;
+  
+  --ring: #990411;
+  
+  /* 0px Roundedness */
+  --radius: 0px;
+  
+  --sidebar: #fef9ed;
+  --sidebar-foreground: #1d1c15;
+  --sidebar-primary: #990411;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f1f5f9;
-  --sidebar-accent-foreground: #2563eb;
-  --sidebar-border: #e2e8f0;
-  --sidebar-ring: #2563eb;
+  --sidebar-accent: #f8f3e7;
+  --sidebar-accent-foreground: #990411;
+  --sidebar-border: rgba(227, 190, 186, 0.15);
+  --sidebar-ring: #990411;
 }
 
-[data-theme="midnight"] {
-  --background: #020617;
-  --foreground: #f8fafc;
-  --card: #0f172a;
-  --card-foreground: #f1f5f9;
-  --primary: #0ea5e9;
-  --secondary: #1e293b;
-  --muted: #020617;
-  --muted-foreground: #94a3b8;
-  --accent: #1e293b;
-  --accent-foreground: #0ea5e9;
-  --border: #1e293b;
-  --sidebar: #020617;
-  --sidebar-foreground: #f1f5f9;
-}
-
-[data-theme="cyberpunk"] {
-  --background: #111111;
-  --foreground: #ffffff;
-  --card: #1a1a1a;
-  --card-foreground: #f8fafc;
-  --primary: #ff007f;
-  --secondary: #2a2a2a;
-  --muted: #111111;
-  --muted-foreground: #a1a1aa;
-  --accent: #2a2a2a;
-  --accent-foreground: #ff007f;
-  --border: #2a2a2a;
-  --sidebar: #111111;
-  --sidebar-foreground: #ffffff;
-}
-
-[data-theme="emerald"] {
-  --background: #064e3b;
-  --foreground: #ecfdf5;
-  --card: #065f46;
-  --card-foreground: #f0fdf4;
-  --primary: #10b981;
-  --secondary: #064e3b;
-  --muted: #064e3b;
-  --muted-foreground: #6ee7b7;
-  --accent: #065f46;
-  --accent-foreground: #10b981;
-  --border: #065f46;
-  --sidebar: #064e3b;
-  --sidebar-foreground: #ecfdf5;
-}
-
-@theme inline {
+@theme {
   --font-sans: var(--font-sans);
   --font-display: var(--font-display);
 
@@ -109,10 +76,10 @@
   --color-switch-background: var(--switch-background);
   --color-ring: var(--ring);
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xl: var(--radius);
 
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
@@ -131,6 +98,7 @@
 
   body {
     @apply bg-background text-foreground transition-colors duration-300;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
   }
 
   h1,
@@ -148,11 +116,11 @@
   }
 
   h1 {
-    @apply text-4xl lg:text-5xl leading-tight;
+    @apply text-4xl lg:text-6xl leading-tight;
   }
 
   h2 {
-    @apply text-2xl lg:text-3xl leading-snug;
+    @apply text-2xl lg:text-4xl leading-snug;
   }
 
   h3 {
