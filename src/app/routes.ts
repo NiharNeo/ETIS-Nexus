@@ -26,6 +26,7 @@ import QRScannerPage from './pages/QRScannerPage';
 import EventAttendancePage from './pages/EventAttendancePage';
 import OnboardingPage from './pages/OnboardingPage';
 import AdminStudentsPage from './pages/AdminStudentsPage';
+import VerifyCertificatePage from './pages/VerifyCertificatePage';
 
 export const router = createBrowserRouter([
   {
@@ -37,17 +38,21 @@ export const router = createBrowserRouter([
     Component: AdminLoginPage,
   },
   {
-    path: '/onboarding',
-    Component: OnboardingPage,
+    path: '/verify/cert/:hash',
+    Component: VerifyCertificatePage,
   },
   {
-    path: '/admin/students',
-    Component: AdminStudentsPage,
+    path: '/onboarding',
+    Component: OnboardingPage,
   },
   {
     // Main authenticated layout
     Component: AppLayout,
     children: [
+      {
+        path: '/admin/students',
+        Component: AdminStudentsPage,
+      },
       {
         path: '/dashboard',
         Component: DashboardPage,

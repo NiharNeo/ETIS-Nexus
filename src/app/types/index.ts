@@ -92,6 +92,16 @@ export interface EventRegistration {
 }
 
 // ─── Attendance Types ─────────────────────────────────────────────────────────
+export interface Certificate {
+  id: string;
+  registrationId: string;
+  verificationHash: string;
+  issuedAt: string;
+  studentName: string;
+  eventTitle: string;
+  department: string;
+}
+
 export interface AttendanceRecord {
   id: string;
   registrationId: string;

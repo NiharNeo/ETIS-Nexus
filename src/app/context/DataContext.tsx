@@ -16,7 +16,8 @@ import type {
   ProjectMemory, 
   WikiArticle,
   Announcement,
-  AttendanceRecord
+  AttendanceRecord,
+  Certificate
 } from '../types';
 
 // Alias to avoid conflict with browser Notification
@@ -78,6 +79,8 @@ interface DataContextValue {
   deleteAnnouncement: (id: string) => Promise<void>;
   // Registration Actions (admin)
   deleteRegistration: (id: string) => Promise<boolean>;
+  // Certificate Actions
+  getOrCreateCertificate: (regId: string) => Promise<Certificate | null>;
 }
 
 const DataContext = createContext<DataContextValue | null>(null);
@@ -252,6 +255,17 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       totalPoints: c.total_points || 0
     }
   }), []);
+
+  const mapCertificate = useCallback((c: any): Certificate => ({
+    id: c.id,
+    registrationId: c.registration_id,
+    verificationHash: c.verification_hash,
+    issuedAt: c.issued_at,
+    studentName: c.student_name,
+    eventTitle: c.event_title,
+    department: c.department
+  }), []);
+
 
 
   useEffect(() => {
@@ -1099,6 +1113,49 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const getOrCreateCertificate = useCallback(async (regId: string): Promise<Certificate | null> => {
+    try {
+      // 1. Check if exists
+      const { data: existing, error: fetchError } = await supabase
+        .from('certificates')
+        .select('*')
+        .eq('registration_id', regId)
+        .maybeSingle();
+
+      if (existing) return mapCertificate(existing);
+
+      // 2. Not found -> Issue new one
+      // Get registration details first
+      const { data: reg, error: regError } = await supabase
+        .from('registrations')
+        .select(`*, profiles(name, department), events(title)`)
+        .eq('id', regId)
+        .single();
+
+      if (regError || !reg) throw regError || new Error('Registration not found');
+
+      const hash = btoa(`${regId}-${Date.now()}`).replace(/=/g, '').slice(-16);
+      
+      const { data: neu, error: insError } = await supabase
+        .from('certificates')
+        .insert({
+          registration_id: regId,
+          verification_hash: hash,
+          student_name: reg.profiles?.name,
+          event_title: reg.events?.title,
+          department: reg.profiles?.department
+        })
+        .select()
+        .single();
+
+      if (insError) throw insError;
+      return mapCertificate(neu);
+    } catch (err) {
+      console.error('Failed to issue certificate:', err);
+      return null;
+    }
+  }, [mapCertificate]);
+
   return (
     <DataContext.Provider
       value={{
@@ -1144,7 +1201,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         addAnnouncement,
         updateAnnouncement,
         deleteAnnouncement,
-        deleteRegistration
+        deleteRegistration,
+        getOrCreateCertificate
       }}
     >
       {children}

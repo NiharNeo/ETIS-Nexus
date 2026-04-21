@@ -5,6 +5,9 @@ import type { EventRegistration } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { ClubLogo } from '../components/clubs/ClubLogo';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import { CertificateTemplate } from '../components/events/CertificateTemplate';
 import {
   Ticket,
   Download,
@@ -17,16 +20,21 @@ import {
   ScanLine,
   Zap,
   ShieldCheck,
+  Award,
+  Loader2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
 export default function MyTicketsPage() {
   const { user } = useAuth();
-  const { getRegistrations, events, clubs } = useData();
+  const { getRegistrations, events, clubs, getOrCreateCertificate } = useData();
   const [registrations, setRegistrations] = useState<EventRegistration[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [certData, setCertData] = useState<any>(null);
+  const certRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -55,6 +63,63 @@ export default function MyTicketsPage() {
     link.click();
     toast.success('Ticket Downloaded', { description: 'Your QR ticket has been saved.' });
   }, []);
+
+  const handleDownloadCertificate = async (reg: EventRegistration, eventTitle: string, clubName: string) => {
+    setIsGenerating(true);
+    const toastId = toast.loading('Generating Credential...', { description: 'Synthesizing institutional certificate.' });
+    
+    try {
+      // 1. Get/Issue certificate metadata
+      const cert = await getOrCreateCertificate(reg.id);
+      if (!cert) throw new Error('Failed to issue certificate');
+
+      // 2. Prepare data for template
+      setCertData({
+        id: cert.id,
+        name: cert.studentName,
+        eventTitle: cert.eventTitle,
+        clubName: clubName,
+        department: cert.department || 'NiharNeo/ETIS-Nexus',
+        date: format(new Date(cert.issuedAt), 'MMMM d, yyyy'),
+        verifyUrl: `${window.location.origin}/verify/cert/${cert.verificationHash}`
+      });
+
+      // 3. Wait for state to apply and render
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      if (!certRef.current) throw new Error('Generation buffer failed');
+
+      // 4. Capture to canvas
+      const canvas = await html2canvas(certRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+
+      // 5. Convert to PDF (A4 Landscape)
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`ETIS-Certificate-${eventTitle.replace(/\s+/g, '-')}.pdf`);
+
+      toast.success('Certificate Generated', { id: toastId, description: 'Your achievement has been documented.' });
+    } catch (err) {
+      console.error('Certificate generation failed:', err);
+      toast.error('Generation Failed', { id: toastId, description: 'The verification ledger is currently unavailable.' });
+    } finally {
+      setIsGenerating(false);
+      setCertData(null);
+    }
+  };
 
   const checkedIn = registrations.filter((r) => r.checkedIn).length;
   const upcoming = registrations.filter((r) => {
@@ -294,6 +359,16 @@ export default function MyTicketsPage() {
                               <Download size={14} />
                               Download Ticket
                             </button>
+                            {reg.checkedIn && (
+                              <button
+                                onClick={() => handleDownloadCertificate(reg, event?.title || 'Event', club?.name || 'Club')}
+                                disabled={isGenerating}
+                                className="flex items-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white font-black uppercase text-[10px] tracking-[0.2em] hover:opacity-90 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+                              >
+                                {isGenerating ? <Loader2 size={14} className="animate-spin" /> : <Award size={14} />}
+                                E-Certificate
+                              </button>
+                            )}
                             <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-card/60 border border-border/10 text-muted-foreground/60 text-[10px] font-black uppercase tracking-[0.2em]">
                               <ScanLine size={14} />
                               Scannable at Venue
@@ -309,6 +384,16 @@ export default function MyTicketsPage() {
           })}
         </div>
       )}
+
+      {/* Generation Buffer (Hidden) */}
+      <div className="fixed left-[-9999px] top-[-9999px] pointer-events-none overflow-hidden">
+        {certData && (
+          <CertificateTemplate 
+            ref={certRef}
+            {...certData}
+          />
+        )}
+      </div>
     </div>
   );
 }
