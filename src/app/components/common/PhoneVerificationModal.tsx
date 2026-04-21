@@ -51,11 +51,8 @@ export function PhoneVerificationModal({ open, onClose, onVerified, existingPhon
     }
     setSending(true);
     try {
-      const { data, error } = await supabase.functions.invoke('send-otp', {
-        body: { phone: fullPhone }
-      });
+      const { error } = await supabase.auth.updateUser({ phone: fullPhone });
       if (error) throw error;
-      if (data?.error) throw new Error(data.error);
       
       setStep('otp');
       setResendCooldown(30);
@@ -91,11 +88,21 @@ export function PhoneVerificationModal({ open, onClose, onVerified, existingPhon
     }
     setVerifying(true);
     try {
-      const { data, error } = await supabase.functions.invoke('verify-otp', {
-        body: { phone: fullPhone, otp: token }
+      const { error } = await supabase.auth.verifyOtp({
+        phone: fullPhone,
+        token,
+        type: 'phone_change',
       });
       if (error) throw error;
-      if (data?.error) throw new Error(data.error);
+
+      // Sync with profiles table
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        await supabase
+          .from('profiles')
+          .update({ phone: fullPhone, phone_verified: true })
+          .eq('id', session.user.id);
+      }
 
       toast.success('Phone Verified!', {
         description: 'Your number is now linked to your account.',
