@@ -8,6 +8,7 @@ interface AuthContextValue extends AuthState {
   logout: () => void;
   updateUser: (updates: Partial<User>) => void;
   refreshProfile: () => Promise<void>;
+  signInWithLinkedIn: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -173,6 +174,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const signInWithLinkedIn = useCallback(async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'linkedin_oidc',
+      options: {
+        redirectTo: window.location.origin,
+      }
+    });
+
+    if (error) {
+      console.error('LinkedIn Login Error:', error);
+      throw error;
+    }
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -185,6 +200,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         updateUser,
         refreshProfile,
+        signInWithLinkedIn,
       }}
     >
       {children}

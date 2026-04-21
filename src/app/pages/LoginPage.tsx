@@ -1,12 +1,12 @@
 
   import { useState } from 'react';
   import { useNavigate, Navigate } from 'react-router';
-  import { GraduationCap, Eye, EyeOff, LogIn, ShieldAlert } from 'lucide-react';
+  import { GraduationCap, Eye, EyeOff, LogIn, ShieldAlert, Linkedin } from 'lucide-react';
   import { useAuth } from '../context/AuthContext';
   import { motion, AnimatePresence } from 'motion/react';
 
   export default function LoginPage() {
-    const { login, registerUser, isAuthenticated, loading: authLoading } = useAuth();
+    const { login, registerUser, isAuthenticated, loading: authLoading, signInWithLinkedIn } = useAuth();
     const navigate = useNavigate();
     const [isRegistering, setIsRegistering] = useState(false);
     const [name, setName] = useState('');
@@ -44,6 +44,15 @@
         navigate('/dashboard');
       } else {
         setError(result.message ?? 'Authentication rejected.');
+      }
+    };
+
+    const handleLinkedInLogin = async () => {
+      setError('');
+      try {
+        await signInWithLinkedIn();
+      } catch (err: any) {
+        setError(err.message || 'LinkedIn authentication failed.');
       }
     };
 
@@ -233,6 +242,26 @@
                   )}
                 </motion.button>
               </form>
+
+              <div className="relative my-8">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-black/5"></div>
+                </div>
+                <div className="relative flex justify-center text-[9px] font-black uppercase tracking-[0.3em]">
+                  <span className="bg-white px-4 text-foreground/20">Identity Gateway</span>
+                </div>
+              </div>
+
+              <motion.button
+                type="button"
+                onClick={handleLinkedInLogin}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                className="w-full py-4 rounded-2xl bg-white border border-black/5 text-[#0077B5] font-black uppercase text-[10px] tracking-[0.3em] shadow-sm hover:bg-slate-50 transition-all flex items-center justify-center gap-3"
+              >
+                <Linkedin size={16} fill="currentColor" /> Continue with LinkedIn
+              </motion.button>
+
 
               <div className="mt-8 text-center">
                 <button 
