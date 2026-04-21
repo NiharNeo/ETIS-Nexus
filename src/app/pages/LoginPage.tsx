@@ -108,12 +108,11 @@
               <p className="text-2xl font-black tracking-tighter text-foreground">ETIS <span className="text-primary italic">Nexus</span>.</p>
             </div>
 
-            <div className="bg-white rounded-[3rem] border border-black/5 p-8 lg:p-14 shadow-2xl shadow-black/5">
-              <div className="mb-10">
-                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-3">Portal Authentication</p>
-                 <h2 className="text-4xl font-black text-foreground tracking-tighter leading-none">
-                   Welcome Back <br />
-                   <span className="text-foreground/10 italic">Sign In.</span>
+            <div className="bg-white rounded-[3rem] border border-black/10 p-10 lg:p-16 shadow-[0_40px_80px_-15px_rgba(0,0,0,0.1)]">
+              <div className="mb-12 text-center lg:text-left">
+                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary mb-4 px-1">Identity Verification</p>
+                 <h2 className="text-4xl lg:text-5xl font-black text-foreground tracking-tighter leading-[0.85]">
+                   Nexus <span className="text-foreground/20 italic">Gate.</span>
                  </h2>
               </div>
 
@@ -146,10 +145,19 @@
                   Verify Identity via LinkedIn
                 </motion.button>
 
-                <div className="text-center px-10">
-                   <p className="text-[10px] font-black uppercase tracking-widest text-foreground/30 leading-relaxed">
-                     This portal requires <span className="text-primary italic text-[11px]">Professional Identity Verification</span>. Please use the gateway above to automatically sync your student credentials.
+                <div className="text-center px-4 lg:px-6">
+                   <p className="text-[10px] font-black uppercase tracking-[0.25em] text-foreground/30 leading-relaxed max-w-xs mx-auto">
+                     Professional verification required for all <span className="text-primary italic">ETIS Nexus</span> participants.
                    </p>
+                </div>
+
+                <div className="pt-8 border-t border-black/5 text-center">
+                  <button 
+                    onClick={() => navigate('/nexus-terminal')}
+                    className="text-[9px] font-black uppercase tracking-[0.3em] text-foreground/10 hover:text-primary transition-colors"
+                  >
+                    Institutional Terminal Access
+                  </button>
                 </div>
               </div>
             </div>

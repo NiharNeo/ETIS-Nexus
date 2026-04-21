@@ -20,7 +20,8 @@ import {
   Bell,
   Ticket,
   ScanLine,
-  UserCheck
+  UserCheck,
+  UserCircle2
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -103,6 +104,12 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Club Management',
     icon: <Shield size={18} />,
     to: '/admin/clubs',
+    roles: ['super_admin'],
+  },
+  {
+    label: 'Identity Roster',
+    icon: <UserCircle2 size={18} />,
+    to: '/admin/students',
     roles: ['super_admin'],
   },
   {

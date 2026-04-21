@@ -44,6 +44,14 @@ export function AppLayout({ requireAuth = true, requiredRole, title }: AppLayout
     return <Navigate to="/dashboard" replace />;
   }
 
+  // Mandatory Onboarding Guard for Students
+  const isIncompleteStudent = user?.role === 'student' && (!user.department || !user.year || !user.srn);
+  const isCurrentlyOnboarding = window.location.pathname === '/onboarding';
+
+  if (requireAuth && isAuthenticated && isIncompleteStudent && !isCurrentlyOnboarding) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
   return (
     <div className="flex h-screen bg-background relative overflow-hidden isolate">
       <Sidebar

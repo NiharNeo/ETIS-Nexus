@@ -44,6 +44,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         ...profile,
         phoneVerified: profile.phone_verified,
         authProvider: profile.auth_provider,
+        year: profile.year,
+        srn: profile.srn,
         clubIds
       };
 
@@ -121,7 +123,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .update({
           name: updates.name,
           avatar: updates.avatar,
-          department: updates.department
+          department: updates.department,
+          year: updates.year,
+          srn: updates.srn
         })
         .eq('id', user.id)
         .select()
@@ -152,6 +156,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       provider: 'linkedin_oidc',
       options: {
         redirectTo: window.location.origin,
+        scopes: 'openid profile email',
       }
     });
 

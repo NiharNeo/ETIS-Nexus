@@ -151,6 +151,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     userName: r.profiles?.name,
     userEmail: r.profiles?.email,
     userDepartment: r.profiles?.department,
+    userSrn: r.profiles?.srn,
+    userYear: r.profiles?.year,
     qrCodeId: r.qr_code_id,
     ticketId: r.qr_code_id,
     checkedIn: !!r.checked_in
@@ -297,7 +299,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         if (user) {
           const [notifsRes, registrationsRes] = await Promise.all([
             supabase.from('notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
-            supabase.from('registrations').select(`*, profiles(name, email, department)`).eq('user_id', user.id)
+            supabase.from('registrations').select(`*, profiles(name, email, department, srn, year)`).eq('user_id', user.id)
           ]);
 
           if (notifsRes.data) setAppNotifications(notifsRes.data.map(mapNotification));
@@ -683,7 +685,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       // Step 2: Fetch the registration row (new or existing) via explicit SELECT
       const { data, error: fetchError } = await supabase
         .from('registrations')
-        .select(`*, profiles(name, email, department)`)
+        .select(`*, profiles(name, email, department, srn, year)`)
         .eq('event_id', eventId)
         .eq('user_id', user.id)
         .single();
@@ -710,7 +712,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const getRegistrations = useCallback(async (eventId?: string) => {
     try {
-      let query = supabase.from('registrations').select(`*, profiles(name, email, department)`);
+      let query = supabase.from('registrations').select(`*, profiles(name, email, department, srn, year)`);
       if (eventId) {
         query = query.eq('event_id', eventId);
       } else if (user) {
@@ -786,7 +788,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       // 3. Look up registration by qr_code_id
       const { data: reg, error: lookupErr } = await supabase
         .from('registrations')
-        .select(`*, profiles(name, email, department)`)
+        .select(`*, profiles(name, email, department, srn, year)`)
         .eq('qr_code_id', ticketId)
         .eq('event_id', eventId)
         .single();

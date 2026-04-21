@@ -9,6 +9,8 @@ export interface User {
   avatar?: string;
   clubIds?: string[]; // for club_rep: clubs they manage
   department?: string;
+  year?: string;
+  srn?: string;
   phone?: string;
   phoneVerified?: boolean;
   authProvider?: string;
@@ -84,6 +86,8 @@ export interface EventRegistration {
   userName?: string;
   userEmail?: string;
   userDepartment?: string;
+  userSrn?: string;
+  userYear?: string;
   checkedIn: boolean;
 }
 

@@ -165,11 +165,13 @@ export default function EventAttendancePage() {
   const exportCSV = useCallback(() => {
     const ev = events.find(e => e.id === selectedEventId);
     const rows = [
-      ['#', 'Name', 'Email', 'Department', 'Status', 'Registered At', 'Ticket ID'],
+      ['#', 'Name', 'Email', 'SRN', 'Year', 'Department', 'Status', 'Registered At', 'Ticket ID'],
       ...registrations.map((r, i) => [
         i + 1,
         r.userName || 'Unknown',
         r.userEmail || '—',
+        r.userSrn || '—',
+        r.userYear || '—',
         r.userDepartment || '—',
         r.checkedIn ? 'Checked In' : 'Registered',
         format(new Date(r.registeredAt), 'yyyy-MM-dd HH:mm'),
@@ -192,6 +194,7 @@ export default function EventAttendancePage() {
     const matchSearch = !searchQuery ||
       r.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.userEmail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.userSrn?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.userDepartment?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchFilter = filterStatus === 'all' ||
       (filterStatus === 'checked_in' && r.checkedIn) ||
@@ -482,7 +485,7 @@ export default function EventAttendancePage() {
             <table className="w-full text-sm">
               <thead className="sticky top-0 bg-card/80 backdrop-blur-xl border-b border-border/10 z-10">
                 <tr>
-                  {['#', 'Attendee', 'Department', 'Registered', 'Status', 'Action', ''].map(h => (
+                  {['#', 'Attendee', 'SRN', 'Dept', 'Registered', 'Status', 'Action', ''].map(h => (
                     <th key={h} className="px-5 py-3.5 text-left text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30">
                       {h}
                     </th>
@@ -535,9 +538,16 @@ export default function EventAttendancePage() {
                         </div>
                       </td>
 
-                      {/* Department */}
+                      {/* SRN */}
                       <td className="px-5 py-4">
-                        <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${
+                        <span className="text-[11px] font-black text-foreground tracking-widest uppercase">
+                          {reg.userSrn || '—'}
+                        </span>
+                      </td>
+
+                      {/* Dept */}
+                      <td className="px-5 py-4">
+                        <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${
                           reg.userDepartment
                             ? 'bg-primary/5 text-primary/60 border-primary/10'
                             : 'bg-white/5 text-muted-foreground/30 border-border/5'

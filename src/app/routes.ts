@@ -24,6 +24,8 @@ import NotFoundPage from './pages/NotFoundPage';
 import MyTicketsPage from './pages/MyTicketsPage';
 import QRScannerPage from './pages/QRScannerPage';
 import EventAttendancePage from './pages/EventAttendancePage';
+import OnboardingPage from './pages/OnboardingPage';
+import AdminStudentsPage from './pages/AdminStudentsPage';
 
 export const router = createBrowserRouter([
   {
@@ -33,6 +35,14 @@ export const router = createBrowserRouter([
   {
     path: '/nexus-terminal',
     Component: AdminLoginPage,
+  },
+  {
+    path: '/onboarding',
+    Component: OnboardingPage,
+  },
+  {
+    path: '/admin/students',
+    Component: AdminStudentsPage,
   },
   {
     // Main authenticated layout
